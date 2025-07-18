@@ -1,0 +1,22 @@
+[
+  {
+    "fieldName": "firstName",
+    "label": "First name",
+    "filter": "trim|required|lower|length[1,50]|alphanumeric|lower"
+  },
+  {
+    "fieldName": "lastName",
+    "label": "Last name",
+    "filter": "trim|required|lower|length[1,50]|alphanumeric|lower"
+  },
+  {
+    "fieldName": "sex",
+    "label": "Sex",
+    "filter": "trim|required|sex"
+  },
+  {
+    "fieldName": "dob",
+    "label": "Date of birth",
+    "filter": "trim|required|date"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "fieldName": "fooString",
+    "filter": "trim|required|length[3,50]"
+  },
+  {
+    "fieldName": "fooArray",
+    "filter": "required|longArray|length[1,5]",
+    "isArray": true
+  }
+]

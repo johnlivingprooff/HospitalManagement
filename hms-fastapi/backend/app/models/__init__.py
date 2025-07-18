@@ -1,0 +1,140 @@
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, Date
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from app.core.database import Base
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    role = Column(String, nullable=False, default="user")
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    appointments_as_doctor = relationship("Appointment", back_populates="doctor", foreign_keys="[Appointment.doctor_id]")
+    created_patients = relationship("Patient", back_populates="created_by", foreign_keys="[Patient.created_by_id]")
+
+class Patient(Base):
+    __tablename__ = "patients"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True)
+    phone = Column(String)
+    date_of_birth = Column(Date)
+    gender = Column(String)
+    address = Column(Text)
+    emergency_contact = Column(String)
+    emergency_phone = Column(String)
+    medical_history = Column(Text)
+    allergies = Column(Text)
+    current_medications = Column(Text)
+    insurance_info = Column(Text)
+    is_active = Column(Boolean, default=True)
+    created_by_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    created_by = relationship("User", back_populates="created_patients", foreign_keys=[created_by_id])
+    appointments = relationship("Appointment", back_populates="patient")
+    medical_records = relationship("MedicalRecord", back_populates="patient")
+
+class Appointment(Base):
+    __tablename__ = "appointments"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    appointment_date = Column(DateTime, nullable=False)
+    duration_minutes = Column(Integer, default=30)
+    status = Column(String, default="scheduled")  # scheduled, confirmed, in_progress, completed, cancelled
+    appointment_type = Column(String, nullable=False)  # consultation, follow_up, emergency, etc.
+    notes = Column(Text)
+    symptoms = Column(Text)
+    diagnosis = Column(Text)
+    treatment_plan = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patient = relationship("Patient", back_populates="appointments")
+    doctor = relationship("User", back_populates="appointments_as_doctor", foreign_keys=[doctor_id])
+
+class MedicalRecord(Base):
+    __tablename__ = "medical_records"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    appointment_id = Column(Integer, ForeignKey("appointments.id"))
+    record_type = Column(String, nullable=False)  # consultation, lab_result, prescription, etc.
+    title = Column(String, nullable=False)
+    description = Column(Text)
+    diagnosis = Column(Text)
+    treatment = Column(Text)
+    medications = Column(Text)
+    lab_results = Column(Text)
+    file_attachments = Column(Text)  # JSON array of file paths
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patient = relationship("Patient", back_populates="medical_records")
+    doctor = relationship("User", foreign_keys=[doctor_id])
+    appointment = relationship("Appointment", foreign_keys=[appointment_id])
+
+class Department(Base):
+    __tablename__ = "departments"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    head_doctor_id = Column(Integer, ForeignKey("users.id"))
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    
+    # Relationships
+    head_doctor = relationship("User", foreign_keys=[head_doctor_id])
+
+class Bed(Base):
+    __tablename__ = "beds"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    bed_number = Column(String, nullable=False)
+    room_number = Column(String, nullable=False)
+    department_id = Column(Integer, ForeignKey("departments.id"))
+    bed_type = Column(String, nullable=False)  # general, icu, private, etc.
+    is_occupied = Column(Boolean, default=False)
+    current_patient_id = Column(Integer, ForeignKey("patients.id"))
+    daily_rate = Column(Integer, default=0)  # in cents
+    created_at = Column(DateTime, server_default=func.now())
+    
+    # Relationships
+    department = relationship("Department", foreign_keys=[department_id])
+    current_patient = relationship("Patient", foreign_keys=[current_patient_id])
+
+class Bill(Base):
+    __tablename__ = "bills"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    bill_number = Column(String, unique=True, nullable=False)
+    total_amount = Column(Integer, nullable=False)  # in cents
+    paid_amount = Column(Integer, default=0)  # in cents
+    status = Column(String, default="pending")  # pending, paid, partially_paid, overdue
+    due_date = Column(Date)
+    description = Column(Text)
+    items = Column(Text)  # JSON array of bill items
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patient = relationship("Patient", foreign_keys=[patient_id])

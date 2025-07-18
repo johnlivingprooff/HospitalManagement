@@ -1,0 +1,129 @@
+[
+  {
+    "fieldName": "firstName",
+    "label": "First name",
+    "filter": "trim|required|capitalize|length[1,50]|alphanumeric"
+  },
+  {
+    "fieldName": "lastName",
+    "label": "Last name",
+    "filter": "trim|required|capitalize|length[1,50]|alphanumeric"
+  },
+  {
+    "fieldName": "sex",
+    "label": "Sex",
+    "filter": "trim|required|sex"
+  },
+  {
+    "fieldName": "dob",
+    "label": "Date of birth",
+    "filter": "trim|required|date"
+  },
+  {
+    "fieldName": "address1",
+    "label": "Physical address",
+    "filter": "trim|required|length[1,50]|text"
+  },
+  {
+    "fieldName": "address2",
+    "label": "Mailing address",
+    "filter": "trim|required|length[1,50]|text"
+  },
+  {
+    "fieldName": "email",
+    "label": "Email",
+    "filter": "trim|required|email|lower"
+  },
+  {
+    "fieldName": "country",
+    "label": "Nationality",
+    "filter": "trim|required|country"
+  },
+  {
+    "fieldName": "phone1",
+    "label": "Primary phone",
+    "filter": "trim|required|phone"
+  },
+  {
+    "fieldName": "phone2",
+    "label": "Secondary phone",
+    "filter": "trim|phone"
+  },
+
+  {
+    "fieldName": "idNumber",
+    "label": "ID Number",
+    "filter": "trim|required|length[1,15]|alphanumeric|upper"
+  },
+  {
+    "fieldName": "idType",
+    "label": "ID type",
+    "filter": "trim|required|idType"
+  },
+  {
+    "fieldName": "idIssueDate",
+    "label": "ID issue date",
+    "filter": "trim|required|date"
+  },
+  {
+    "fieldName": "idExpiryDate",
+    "label": "ID expiry date",
+    "filter": "trim|required|date"
+  },
+
+  {
+    "fieldName": "nokFirstName",
+    "label": "Next of kin's first name",
+    "filter": "trim|required|length[1,50]|alphanumeric"
+  },
+  {
+    "fieldName": "nokLastName",
+    "label": "Next of kin's last name",
+    "filter": "trim|required|length[1,50]|alphanumeric"
+  },
+  {
+    "fieldName": "nokAddress",
+    "label": "Next of kin's address",
+    "filter": "trim|required|length[1,50]|text"
+  },
+  {
+    "fieldName": "nokRelationshipType",
+    "label": "Relationship",
+    "filter": "trim|required|relation"
+  },
+  {
+    "fieldName": "nokPhone1",
+    "label": "Next of kin's primary phone",
+    "filter": "trim|required|phone"
+  },
+  {
+    "fieldName": "nokPhone2",
+    "label": "Next of kin's secondary phone",
+    "filter": "trim|phone"
+  },
+  {
+    "fieldName": "employer",
+    "label": "Employer",
+    "filter": "trim|length[1,50]|alphanumeric"
+  },
+  {
+    "fieldName": "employeeId",
+    "label": "Employee id",
+    "filter": "trim|length[1,15]|alphanumeric"
+  },
+  {
+    "fieldName": "insurer",
+    "label": "Insurance company",
+    "filter": "trim|length[1,50]|alphanumeric"
+  },
+  {
+    "fieldName": "membershipId",
+    "label": "Membership ID",
+    "filter": "trim|length[1,15]|alphanumeric"
+  },
+  {
+    "fieldName": "schemeNotes",
+    "label": "Scheme notes",
+    "filter": "trim|length[2,512]"
+  }
+]

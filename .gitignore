@@ -1,0 +1,14 @@
+hms.iml
+.idea/
+target/
+.localdata/
+localdata/
+received-emails/
+.ini
+dependency-reduced-pom.xml
+.vscode/
+.venv/
+.env*
+.env
+node_modules/
+dist/

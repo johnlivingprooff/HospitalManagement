@@ -1,0 +1,12 @@
+[
+  {
+    "fieldName": "userId",
+    "label": "User id",
+    "filter": "trim|required|long"
+  },
+  {
+    "fieldName": "roleId",
+    "label": "Role id",
+    "filter": "trim|required|long"
+  }
+]

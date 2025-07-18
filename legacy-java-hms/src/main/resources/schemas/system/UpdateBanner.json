@@ -1,0 +1,7 @@
+[
+  {
+    "fieldName": "banner",
+    "label": "Banner text",
+    "filter": "trim|required|length[1,37]|text"
+  }
+]

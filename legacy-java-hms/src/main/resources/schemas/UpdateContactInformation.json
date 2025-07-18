@@ -1,0 +1,42 @@
+[
+  {
+    "fieldName": "email",
+    "label": "Email Address",
+    "filter": "trim|required|length[3,50]|email|lower"
+  },
+  {
+    "fieldName": "dob",
+    "label": "Date of birth",
+    "filter": "trim|required|date"
+  },
+  {
+    "fieldName": "firstName",
+    "label": "First name",
+    "filter": "trim|required|alphanumeric|length[1,50]"
+  },
+  {
+    "fieldName": "lastName",
+    "label": "Last name",
+    "filter": "trim|required|alphanumeric|length[1,50]"
+  },
+  {
+    "fieldName": "address1",
+    "label": "Physical address",
+    "filter": "trim|required|alphanumeric|length[1,50]"
+  },
+  {
+    "fieldName": "address2",
+    "label": "Mailing address",
+    "filter": "trim|required|alphanumeric|length[1,50]"
+  },
+  {
+    "fieldName": "phone1",
+    "label": "Primary phone",
+    "filter": "trim|required|length[1,20]|alphanumeric"
+  },
+  {
+    "fieldName": "phone2",
+    "label": "Secondary phone",
+    "filter": "trim|required|length[1,20]|alphanumeric"
+  }
+]

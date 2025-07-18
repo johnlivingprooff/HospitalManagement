@@ -1,0 +1,1 @@
+update permission set privileged = false where permissionKey = 'AccessBilling';
