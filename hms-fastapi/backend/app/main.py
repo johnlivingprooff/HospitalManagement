@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import os
 from app.core.config import settings
 from app.core.database import create_tables
-from app.api import auth, patients, appointments
+from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard
 
 # Create tables on startup
 @asynccontextmanager
@@ -35,8 +35,14 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(patients.router, prefix="/api/patients", tags=["Patients"])
 app.include_router(appointments.router, prefix="/api/appointments", tags=["Appointments"])
+app.include_router(bills.router, prefix="/api/bills", tags=["Bills"])
+app.include_router(medical_records.router, prefix="/api/medical-records", tags=["Medical Records"])
+app.include_router(lab_tests.router, prefix="/api/lab-tests", tags=["Lab Tests"])
+app.include_router(prescriptions.router, prefix="/api/prescriptions", tags=["Prescriptions"])
 
 # Health check endpoint
 @app.get("/")

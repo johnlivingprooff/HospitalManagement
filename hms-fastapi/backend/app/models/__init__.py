@@ -138,3 +138,44 @@ class Bill(Base):
     
     # Relationships
     patient = relationship("Patient", foreign_keys=[patient_id])
+
+class LabTest(Base):
+    __tablename__ = "lab_tests"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    test_name = Column(String, nullable=False)
+    test_type = Column(String, nullable=False)
+    status = Column(String, default="pending")  # pending, in_progress, completed, cancelled
+    result = Column(Text)
+    normal_range = Column(String)
+    notes = Column(Text)
+    ordered_date = Column(DateTime, server_default=func.now())
+    completed_date = Column(DateTime)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patient = relationship("Patient", foreign_keys=[patient_id])
+    doctor = relationship("User", foreign_keys=[doctor_id])
+
+class Prescription(Base):
+    __tablename__ = "prescriptions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    medication_name = Column(String, nullable=False)
+    dosage = Column(String, nullable=False)
+    frequency = Column(String, nullable=False)
+    duration = Column(String, nullable=False)
+    quantity = Column(Integer, nullable=False)
+    status = Column(String, default="pending")  # pending, dispensed, cancelled
+    instructions = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patient = relationship("Patient", foreign_keys=[patient_id])
+    doctor = relationship("User", foreign_keys=[doctor_id])

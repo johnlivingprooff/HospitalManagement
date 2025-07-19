@@ -121,7 +121,7 @@ const LoginPage = () => {
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Demo credentials: admin@hms.local / admin123
+              Demo credentials: admin@hospital.com / admin123
             </p>
           </div>
         </form>

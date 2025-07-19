@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem('token', access_token)
       localStorage.setItem('user', JSON.stringify(userData))
       setUser(userData)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error)
       throw error
     }
@@ -69,3 +69,4 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   )
 }
+

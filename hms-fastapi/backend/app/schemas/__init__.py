@@ -133,10 +133,21 @@ class MedicalRecordUpdate(BaseSchema):
     lab_results: Optional[str] = None
     file_attachments: Optional[str] = None
 
+# Nested schemas for medical record responses
+class PatientInfo(BaseSchema):
+    first_name: str
+    last_name: str
+
+class DoctorInfo(BaseSchema):
+    first_name: str
+    last_name: str
+
 class MedicalRecordResponse(MedicalRecordBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    patient: Optional[PatientInfo] = None
+    doctor: Optional[DoctorInfo] = None
 
 # Department schemas
 class DepartmentBase(BaseSchema):
@@ -219,3 +230,66 @@ class Token(BaseSchema):
 
 class TokenData(BaseSchema):
     email: Optional[str] = None
+
+# Lab Test schemas
+class LabTestBase(BaseSchema):
+    patient_id: int
+    doctor_id: int
+    test_name: str
+    test_type: str
+    normal_range: Optional[str] = None
+    notes: Optional[str] = None
+
+class LabTestCreate(LabTestBase):
+    pass
+
+class LabTestUpdate(BaseSchema):
+    test_name: Optional[str] = None
+    test_type: Optional[str] = None
+    status: Optional[str] = None
+    result: Optional[str] = None
+    normal_range: Optional[str] = None
+    notes: Optional[str] = None
+    completed_date: Optional[datetime] = None
+
+class LabTestResponse(LabTestBase):
+    id: int
+    status: str
+    result: Optional[str]
+    ordered_date: datetime
+    completed_date: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+    patient: Optional[PatientInfo] = None
+    doctor: Optional[DoctorInfo] = None
+
+# Prescription schemas
+class PrescriptionBase(BaseSchema):
+    patient_id: int
+    doctor_id: int
+    medication_name: str
+    dosage: str
+    frequency: str
+    duration: str
+    quantity: int
+    instructions: Optional[str] = None
+
+class PrescriptionCreate(PrescriptionBase):
+    pass
+
+class PrescriptionUpdate(BaseSchema):
+    medication_name: Optional[str] = None
+    dosage: Optional[str] = None
+    frequency: Optional[str] = None
+    duration: Optional[str] = None
+    quantity: Optional[int] = None
+    status: Optional[str] = None
+    instructions: Optional[str] = None
+
+class PrescriptionResponse(PrescriptionBase):
+    id: int
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    patient: Optional[PatientInfo] = None
+    doctor: Optional[DoctorInfo] = None

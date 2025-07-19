@@ -9,7 +9,11 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  UserCheck,
+  CreditCard,
+  PillIcon,
+  TestTube
 } from 'lucide-react'
 
 const Layout = () => {
@@ -21,7 +25,11 @@ const Layout = () => {
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Patients', href: '/patients', icon: Users },
     { name: 'Appointments', href: '/appointments', icon: Calendar },
+    { name: 'Doctors', href: '/doctors', icon: UserCheck },
     { name: 'Medical Records', href: '/medical-records', icon: FileText },
+    { name: 'Lab', href: '/lab', icon: TestTube },
+    { name: 'Pharmacy', href: '/pharmacy', icon: PillIcon },
+    { name: 'Bills', href: '/bills', icon: CreditCard },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
 
