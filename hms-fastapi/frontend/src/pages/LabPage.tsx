@@ -116,21 +116,36 @@ const LabPage = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending': return <ClockIcon className="h-4 w-4" />
-      case 'in_progress': return <TestTubeIcon className="h-4 w-4" />
-      case 'completed': return <CheckCircleIcon className="h-4 w-4" />
-      case 'abnormal': return <AlertCircleIcon className="h-4 w-4" />
-      default: return <ClockIcon className="h-4 w-4" />
+      case 'pending': return <ClockIcon className="w-4 h-4" />
+      case 'in_progress': return <TestTubeIcon className="w-4 h-4" />
+      case 'completed': return <CheckCircleIcon className="w-4 h-4" />
+      case 'abnormal': return <AlertCircleIcon className="w-4 h-4" />
+      default: return <ClockIcon className="w-4 h-4" />
     }
   }
 
   const filteredTests = useClientSearch(
     labTests,
     searchTerm,
-    ['test_name', 'test_type', 'patient.first_name', 'patient.last_name', 'doctor.first_name', 'doctor.last_name'] as (keyof LabTest)[],
+    ['test_name', 'test_type', 'notes', 'result'],
     [
       // Status filter
-      (test) => selectedStatus === 'all' || test.status === selectedStatus
+      (test) => selectedStatus === 'all' || test.status === selectedStatus,
+      // Manual search for nested patient and doctor fields
+      (test) => {
+        if (!searchTerm) return true
+        const searchLower = searchTerm.toLowerCase()
+        
+        // Search in patient name
+        const patientMatch = test.patient ? 
+          `${test.patient.first_name} ${test.patient.last_name}`.toLowerCase().includes(searchLower) : false
+        
+        // Search in doctor name
+        const doctorMatch = test.doctor ? 
+          `${test.doctor.first_name} ${test.doctor.last_name}`.toLowerCase().includes(searchLower) : false
+        
+        return patientMatch || doctorMatch
+      }
     ]
   )
 
@@ -145,15 +160,15 @@ const LabPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-32 h-32 border-b-2 rounded-full animate-spin border-primary-600"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-md p-4">
+      <div className="p-4 border border-red-200 rounded-md bg-red-50">
         <p className="text-red-800">Error loading lab tests. Please try again.</p>
       </div>
     )
@@ -161,25 +176,25 @@ const LabPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Laboratory</h1>
         <button 
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-cyan-600 border border-transparent rounded-lg shadow-sm hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 border border-transparent rounded-lg shadow-sm bg-cyan-600 hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setShowAddModal(true)}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="w-4 h-4 mr-2" />
           Order New Test
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="p-4 bg-white rounded-lg shadow">
+        <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex-1">
             <SearchInput
               value={searchTerm}
               onChange={setSearchTerm}
-              placeholder="Search by test name, type, or patient..."
+              placeholder="Search by test name, type, patient, or doctor..."
               className="w-full"
             />
           </div>
@@ -201,10 +216,10 @@ const LabPage = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <ClockIcon className="h-8 w-8 text-yellow-600" />
+            <ClockIcon className="w-8 h-8 text-yellow-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Pending</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -214,9 +229,9 @@ const LabPage = () => {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <TestTubeIcon className="h-8 w-8 text-blue-600" />
+            <TestTubeIcon className="w-8 h-8 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">In Progress</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -226,9 +241,9 @@ const LabPage = () => {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <CheckCircleIcon className="h-8 w-8 text-green-600" />
+            <CheckCircleIcon className="w-8 h-8 text-green-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Completed</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -238,9 +253,9 @@ const LabPage = () => {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <AlertCircleIcon className="h-8 w-8 text-orange-600" />
+            <AlertCircleIcon className="w-8 h-8 text-orange-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Abnormal</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -252,7 +267,7 @@ const LabPage = () => {
       </div>
 
       {/* Tests Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="overflow-hidden bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">Lab Tests ({filteredTests.length})</h2>
         </div>
@@ -266,25 +281,25 @@ const LabPage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Patient
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Test Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Ordered By
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Order Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Actions
                   </th>
                 </tr>
@@ -306,7 +321,7 @@ const LabPage = () => {
                         <div className="text-sm text-gray-500">Normal: {test.normal_range}</div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                       {test.test_type}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -317,16 +332,16 @@ const LabPage = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                       {test.doctor ? 
                         `Dr. ${test.doctor.first_name} ${test.doctor.last_name}` : 
                         'N/A'
                       }
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                       {new Date(test.ordered_date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                       <div className="flex space-x-2">
                         {test.status === 'pending' && (
                           <button 
@@ -377,7 +392,7 @@ const LabPage = () => {
         <form onSubmit={handleAddLabTest} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Patient
               </label>
               <select 
@@ -395,7 +410,7 @@ const LabPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Ordering Doctor
               </label>
               <select 
@@ -416,7 +431,7 @@ const LabPage = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Test Name
               </label>
               <input
@@ -429,7 +444,7 @@ const LabPage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Test Type
               </label>
               <select 
@@ -452,7 +467,7 @@ const LabPage = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Normal Range (Optional)
             </label>
             <input
@@ -465,7 +480,7 @@ const LabPage = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Special Instructions
             </label>
             <textarea
@@ -487,7 +502,7 @@ const LabPage = () => {
             </button>
             <button 
               type="submit" 
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-cyan-600 border border-transparent rounded-lg shadow-sm hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 border border-transparent rounded-lg shadow-sm bg-cyan-600 hover:bg-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={addLabTestMutation.isLoading}
             >
               {addLabTestMutation.isLoading && (

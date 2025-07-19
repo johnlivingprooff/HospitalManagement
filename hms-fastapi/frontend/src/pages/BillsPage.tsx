@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { CreditCardIcon, DollarSignIcon, FileTextIcon, Plus } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import SearchInput from '../components/SearchInput'
+import { useClientSearch } from '../hooks/useOptimizedSearch'
 
 interface Bill {
   id: number
@@ -24,6 +26,8 @@ interface Bill {
 
 const BillsPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -105,6 +109,28 @@ const BillsPage = () => {
     }
   }
 
+  // Apply client-side filtering and search
+  const filteredBills = useClientSearch(
+    bills,
+    searchTerm,
+    ['bill_number', 'description'],
+    [
+      // Status filter
+      (bill) => statusFilter === 'all' || bill.status === statusFilter,
+      // Manual search for nested patient fields
+      (bill) => {
+        if (!searchTerm) return true
+        const searchLower = searchTerm.toLowerCase()
+        
+        // Search in patient name
+        const patientMatch = bill.patient ? 
+          `${bill.patient.first_name} ${bill.patient.last_name}`.toLowerCase().includes(searchLower) : false
+        
+        return patientMatch
+      }
+    ]
+  ) || []
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -132,6 +158,33 @@ const BillsPage = () => {
           <Plus className="w-4 h-4 mr-2" />
           Create New Bill
         </button>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="p-4 bg-white rounded-lg shadow">
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="flex-1">
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search by bill number, patient name, or description..."
+              className="w-full"
+            />
+          </div>
+          <div>
+            <select
+              className="input"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="partially_paid">Partially Paid</option>
+              <option value="paid">Paid</option>
+              <option value="overdue">Overdue</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -223,7 +276,7 @@ const BillsPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {bills.map((bill) => (
+                {filteredBills.map((bill) => (
                   <tr key={bill.id}>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
                       {bill.bill_number}

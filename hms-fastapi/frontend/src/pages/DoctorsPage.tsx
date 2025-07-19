@@ -4,6 +4,8 @@ import { User, AppointmentWithRelations, Patient } from '../types'
 import api from '../lib/api'
 import { UserIcon, MailIcon, Plus, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import Modal from '../components/Modal'
+import SearchInput from '../components/SearchInput'
+import { useClientSearch } from '../hooks/useOptimizedSearch'
 
 const DoctorsPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
@@ -12,6 +14,8 @@ const DoctorsPage = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<User | null>(null)
   const [editingDoctor, setEditingDoctor] = useState<User | null>(null)
   const [showAddAppointmentModal, setShowAddAppointmentModal] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [specializationFilter, setSpecializationFilter] = useState('all')
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
     const today = new Date()
     const startOfWeek = new Date(today)
@@ -271,6 +275,17 @@ const DoctorsPage = () => {
     }).sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())
   }
 
+  // Apply client-side filtering and search
+  const filteredDoctors = useClientSearch(
+    doctors,
+    searchTerm,
+    ['first_name', 'last_name', 'email', 'phone', 'specialization', 'license_number'],
+    [
+      // Specialization filter
+      (doctor) => specializationFilter === 'all' || doctor.specialization === specializationFilter
+    ]
+  ) || []
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -300,18 +315,49 @@ const DoctorsPage = () => {
         </button>
       </div>
 
+      {/* Search and Filters */}
+      <div className="p-4 bg-white rounded-lg shadow">
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="flex-1">
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search by name, email, phone, or specialization..."
+              className="w-full"
+            />
+          </div>
+          <div>
+            <select
+              className="input"
+              value={specializationFilter}
+              onChange={(e) => setSpecializationFilter(e.target.value)}
+            >
+              <option value="all">All Specializations</option>
+              <option value="Cardiology">Cardiology</option>
+              <option value="Neurology">Neurology</option>
+              <option value="Orthopedics">Orthopedics</option>
+              <option value="Pediatrics">Pediatrics</option>
+              <option value="General Medicine">General Medicine</option>
+              <option value="Surgery">Surgery</option>
+              <option value="Dermatology">Dermatology</option>
+              <option value="Psychiatry">Psychiatry</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900">Medical Staff</h2>
+          <h2 className="text-lg font-medium text-gray-900">Medical Staff ({filteredDoctors.length})</h2>
         </div>
         
-        {!doctors || doctors.length === 0 ? (
+        {filteredDoctors.length === 0 ? (
           <div className="p-6 text-center text-gray-500">
             No doctors found.
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {doctors.map((doctor) => (
+            {filteredDoctors.map((doctor) => (
               <div key={doctor.id} className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">

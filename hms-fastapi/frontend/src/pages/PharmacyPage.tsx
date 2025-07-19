@@ -131,10 +131,25 @@ const PharmacyPage = () => {
   const filteredPrescriptions = useClientSearch(
     prescriptions,
     searchTerm,
-    ['medication_name', 'patient.first_name', 'patient.last_name', 'doctor.first_name', 'doctor.last_name'] as (keyof Prescription)[],
+    ['medication_name', 'dosage', 'instructions'],
     [
       // Status filter
-      (prescription) => selectedStatus === 'all' || prescription.status === selectedStatus
+      (prescription) => selectedStatus === 'all' || prescription.status === selectedStatus,
+      // Manual search for nested patient and doctor fields
+      (prescription) => {
+        if (!searchTerm) return true
+        const searchLower = searchTerm.toLowerCase()
+        
+        // Search in patient name
+        const patientMatch = prescription.patient ? 
+          `${prescription.patient.first_name} ${prescription.patient.last_name}`.toLowerCase().includes(searchLower) : false
+        
+        // Search in doctor name
+        const doctorMatch = prescription.doctor ? 
+          `${prescription.doctor.first_name} ${prescription.doctor.last_name}`.toLowerCase().includes(searchLower) : false
+        
+        return patientMatch || doctorMatch
+      }
     ]
   )
 
@@ -232,7 +247,7 @@ const PharmacyPage = () => {
             <SearchInput
               value={searchTerm}
               onChange={setSearchTerm}
-              placeholder="Search by medication, patient, or doctor..."
+              placeholder="Search by medication, dosage, patient, or doctor..."
               className="w-full"
             />
           </div>
