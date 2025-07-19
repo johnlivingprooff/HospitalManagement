@@ -26,6 +26,8 @@ interface Bill {
 
 const BillsPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const navigate = useNavigate()
@@ -38,6 +40,12 @@ const BillsPage = () => {
     description: '',
     due_date: '',
     status: 'pending'
+  })
+
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '',
+    payment_method: 'cash',
+    notes: ''
   })
 
   const { data: bills, isLoading, error } = useQuery<Bill[]>(
@@ -87,9 +95,59 @@ const BillsPage = () => {
     }
   )
 
+  const paymentMutation = useMutation(
+    (paymentData: { billId: number; amount: number; payment_method: string; notes: string }) => {
+      return api.post(`/api/bills/${paymentData.billId}/payments`, {
+        amount: paymentData.amount,
+        payment_method: paymentData.payment_method,
+        notes: paymentData.notes
+      })
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('bills')
+        setShowPaymentModal(false)
+        setSelectedBill(null)
+        setPaymentForm({
+          amount: '',
+          payment_method: 'cash',
+          notes: ''
+        })
+      },
+      onError: (error: any) => {
+        console.error('Error processing payment:', error)
+        alert('Failed to process payment. Please try again.')
+      }
+    }
+  )
+
   const handleAddBill = async (e: React.FormEvent) => {
     e.preventDefault()
     addBillMutation.mutate(billForm)
+  }
+
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedBill) return
+    
+    const paymentAmount = Math.round(parseFloat(paymentForm.amount) * 100) // Convert to cents
+    paymentMutation.mutate({
+      billId: selectedBill.id,
+      amount: paymentAmount,
+      payment_method: paymentForm.payment_method,
+      notes: paymentForm.notes
+    })
+  }
+
+  const handlePayClick = (bill: Bill) => {
+    setSelectedBill(bill)
+    const remainingAmount = (bill.total_amount - bill.paid_amount) / 100 // Convert from cents
+    setPaymentForm({
+      amount: remainingAmount.toFixed(2),
+      payment_method: 'cash',
+      notes: ''
+    })
+    setShowPaymentModal(true)
   }
 
   const formatCurrency = (cents: number) => {
@@ -306,9 +364,14 @@ const BillsPage = () => {
                         >
                           View
                         </button>
-                        <button className="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200">
-                          Pay
-                        </button>
+                        {bill.status !== 'paid' && (
+                          <button 
+                            onClick={() => handlePayClick(bill)}
+                            className="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                          >
+                            Pay
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -420,6 +483,108 @@ const BillsPage = () => {
                 </svg>
               )}
               {addBillMutation.isLoading ? 'Creating...' : 'Create Bill'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Payment Modal */}
+      <Modal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        title={`Process Payment - ${selectedBill?.bill_number || ''}`}
+      >
+        <form onSubmit={handlePayment} className="space-y-4">
+          {selectedBill && (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-700">Total Amount:</span>
+                  <p className="text-lg font-semibold">{formatCurrency(selectedBill.total_amount)}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Already Paid:</span>
+                  <p className="text-lg font-semibold text-green-600">{formatCurrency(selectedBill.paid_amount)}</p>
+                </div>
+                <div className="col-span-2">
+                  <span className="font-medium text-gray-700">Remaining Balance:</span>
+                  <p className="text-xl font-bold text-red-600">
+                    {formatCurrency(selectedBill.total_amount - selectedBill.paid_amount)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Payment Amount ($)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              min="0.01"
+              max={selectedBill ? (selectedBill.total_amount - selectedBill.paid_amount) / 100 : undefined}
+              className="input"
+              value={paymentForm.amount}
+              onChange={(e) => setPaymentForm({...paymentForm, amount: e.target.value})}
+              placeholder="Enter payment amount"
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Payment Method
+            </label>
+            <select 
+              className="input"
+              value={paymentForm.payment_method}
+              onChange={(e) => setPaymentForm({...paymentForm, payment_method: e.target.value})}
+              required
+            >
+              <option value="cash">Cash</option>
+              <option value="credit_card">Credit Card</option>
+              <option value="debit_card">Debit Card</option>
+              <option value="check">Check</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="insurance">Insurance</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Notes (Optional)
+            </label>
+            <textarea
+              className="input"
+              rows={2}
+              value={paymentForm.notes}
+              onChange={(e) => setPaymentForm({...paymentForm, notes: e.target.value})}
+              placeholder="Payment notes or reference number..."
+            />
+          </div>
+          
+          <div className="flex justify-end pt-6 space-x-3 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => setShowPaymentModal(false)}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-green-600 border border-transparent rounded-lg shadow-sm hover:bg-green-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={paymentMutation.isLoading}
+            >
+              {paymentMutation.isLoading && (
+                <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              )}
+              {paymentMutation.isLoading ? 'Processing...' : 'Process Payment'}
             </button>
           </div>
         </form>

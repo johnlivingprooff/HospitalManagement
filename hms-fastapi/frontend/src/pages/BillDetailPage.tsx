@@ -9,12 +9,15 @@ import Modal from '../components/Modal'
 interface Bill {
   id: number
   patient_id: number
-  amount: number
+  bill_number: string
+  total_amount: number
+  paid_amount: number
   status: string
+  due_date: string
   description: string
   created_at: string
-  due_date: string
-  patient: {
+  patient?: {
+    id: number
     first_name: string
     last_name: string
     email: string
@@ -29,7 +32,7 @@ const BillDetailPage = () => {
   
   const [editBillForm, setEditBillForm] = useState({
     patient_id: '',
-    amount: '',
+    total_amount: '',
     status: '',
     description: '',
     due_date: ''
@@ -56,7 +59,7 @@ const BillDetailPage = () => {
     (billData: { id: number } & typeof editBillForm) => {
       const payload = {
         patient_id: parseInt(billData.patient_id),
-        amount: Math.round(parseFloat(billData.amount) * 100), // Convert to cents
+        total_amount: Math.round(parseFloat(billData.total_amount) * 100), // Convert to cents
         status: billData.status,
         description: billData.description,
         due_date: billData.due_date
@@ -70,7 +73,7 @@ const BillDetailPage = () => {
         setShowEditModal(false)
         setEditBillForm({
           patient_id: '',
-          amount: '',
+          total_amount: '',
           status: '',
           description: '',
           due_date: ''
@@ -93,7 +96,7 @@ const BillDetailPage = () => {
     if (!bill) return
     setEditBillForm({
       patient_id: bill.patient_id.toString(),
-      amount: (bill.amount / 100).toString(), // Convert from cents
+      total_amount: (bill.total_amount / 100).toString(), // Convert from cents
       status: bill.status,
       description: bill.description,
       due_date: bill.due_date.split('T')[0] // Format date for input
@@ -175,7 +178,7 @@ const BillDetailPage = () => {
     doc.text('Bill Details', margin, yPosition)
     yPosition += 15
 
-    addSection('Amount', `$${(bill.amount / 100).toFixed(2)}`)
+    addSection('Amount', `$${(bill.total_amount / 100).toFixed(2)}`)
     addSection('Status', bill.status.charAt(0).toUpperCase() + bill.status.slice(1))
     addSection('Description', bill.description)
 
@@ -258,7 +261,7 @@ const BillDetailPage = () => {
               <label className="block text-sm font-medium text-gray-700">Amount</label>
               <p className="flex items-center text-lg font-semibold text-gray-900">
                 <DollarSign className="w-4 h-4 mr-1 text-green-600" />
-                ${(bill.amount / 100).toFixed(2)}
+                ${(bill.total_amount / 100).toFixed(2)}
               </p>
             </div>
             <div>
@@ -284,9 +287,9 @@ const BillDetailPage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700">Patient</label>
               <p className="text-gray-900">
-                {bill.patient.first_name} {bill.patient.last_name}
+                {bill.patient ? `${bill.patient.first_name} ${bill.patient.last_name}` : 'Unknown Patient'}
               </p>
-              <p className="text-sm text-gray-500">{bill.patient.email}</p>
+              <p className="text-sm text-gray-500">{bill.patient?.email || 'No email provided'}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Issue Date</label>
@@ -368,8 +371,8 @@ const BillDetailPage = () => {
                 step="0.01"
                 required
                 className="input"
-                value={editBillForm.amount}
-                onChange={(e) => setEditBillForm({...editBillForm, amount: e.target.value})}
+                value={editBillForm.total_amount}
+                onChange={(e) => setEditBillForm({...editBillForm, total_amount: e.target.value})}
               />
             </div>
             
