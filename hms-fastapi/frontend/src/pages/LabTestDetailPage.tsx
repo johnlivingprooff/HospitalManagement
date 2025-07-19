@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { ArrowLeft, TestTube2, User, Stethoscope, Calendar, Clock, FileText } from 'lucide-react'
+import { ArrowLeft, TestTube2, User, Stethoscope, Calendar, FileText, Download } from 'lucide-react'
+import jsPDF from 'jspdf'
 import api from '../lib/api'
+import Modal from '../components/Modal'
 
 interface LabTest {
   id: number
@@ -31,6 +33,17 @@ const LabTestDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [showEditModal, setShowEditModal] = useState(false)
+  
+  const [editTestForm, setEditTestForm] = useState({
+    patient_id: '',
+    doctor_id: '',
+    test_name: '',
+    test_type: '',
+    status: '',
+    notes: '',
+    results: ''
+  })
 
   const { data: test, isLoading, error } = useQuery<LabTest>(
     ['lab-test', id],
@@ -42,6 +55,185 @@ const LabTestDetailPage = () => {
       enabled: !!id
     }
   )
+
+  // Fetch patients and doctors for edit form dropdowns
+  const { data: patients } = useQuery('patients', async () => {
+    const response = await api.get('/api/patients')
+    return response.data
+  })
+
+  const { data: doctors } = useQuery('doctors', async () => {
+    const response = await api.get('/api/users?role=doctor')
+    return response.data
+  })
+
+  const editTestMutation = useMutation(
+    (testData: { id: number } & typeof editTestForm) => {
+      const payload = {
+        patient_id: parseInt(testData.patient_id),
+        doctor_id: parseInt(testData.doctor_id),
+        test_name: testData.test_name,
+        test_type: testData.test_type,
+        status: testData.status,
+        notes: testData.notes,
+        results: testData.results
+      }
+      return api.put(`/api/lab-tests/${testData.id}`, payload)
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['lab-test', id])
+        queryClient.invalidateQueries('lab-tests')
+        setShowEditModal(false)
+        setEditTestForm({
+          patient_id: '',
+          doctor_id: '',
+          test_name: '',
+          test_type: '',
+          status: '',
+          notes: '',
+          results: ''
+        })
+      },
+      onError: (error: any) => {
+        console.error('Error updating lab test:', error)
+        alert('Failed to update lab test. Please try again.')
+      }
+    }
+  )
+
+  const handleEditTest = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!test) return
+    editTestMutation.mutate({ ...editTestForm, id: test.id })
+  }
+
+  const handleEditClick = () => {
+    if (!test) return
+    setEditTestForm({
+      patient_id: test.patient_id.toString(),
+      doctor_id: test.doctor_id.toString(),
+      test_name: test.test_name,
+      test_type: test.test_type,
+      status: test.status,
+      notes: test.notes || '',
+      results: test.results || ''
+    })
+    setShowEditModal(true)
+  }
+
+  const generateSingleTestReport = () => {
+    if (!test) return
+
+    const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.width
+    const pageHeight = doc.internal.pageSize.height
+    const margin = 20
+    let yPosition = 30
+
+    // Helper function to add text and handle page breaks
+    const addText = (text: string, fontSize = 10, isBold = false) => {
+      if (yPosition > pageHeight - 30) {
+        doc.addPage()
+        yPosition = 30
+      }
+      
+      doc.setFontSize(fontSize)
+      doc.setFont('helvetica', isBold ? 'bold' : 'normal')
+      doc.text(text, margin, yPosition)
+      yPosition += fontSize * 0.5 + 5
+    }
+
+    const addSection = (label: string, content: string) => {
+      if (content && content.trim()) {
+        addText(`${label}:`, 12, true)
+        // Split long content into multiple lines
+        const splitContent = doc.splitTextToSize(content, pageWidth - margin * 2)
+        splitContent.forEach((line: string) => {
+          addText(`  ${line}`, 11, false)
+        })
+        yPosition += 8 // Add some space after section
+      }
+    }
+
+    // Header
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Lab Test Report', pageWidth / 2, 20, { align: 'center' })
+    
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 35, { align: 'center' })
+    
+    yPosition = 50
+
+    // Test header
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Test #${test.id} - ${test.test_name}`, margin, yPosition)
+    yPosition += 20
+
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Ordered Date: ${new Date(test.ordered_date).toLocaleDateString()}`, margin, yPosition)
+    if (test.completed_date) {
+      yPosition += 15
+      doc.text(`Completed Date: ${new Date(test.completed_date).toLocaleDateString()}`, margin, yPosition)
+    }
+    yPosition += 20
+
+    // Patient Information
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Patient Information', margin, yPosition)
+    yPosition += 15
+
+    addSection('Patient Name', test.patient ? `${test.patient.first_name} ${test.patient.last_name}` : 'Unknown')
+    addSection('Email', test.patient?.email || 'Not provided')
+    yPosition += 10
+
+    // Doctor Information
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Ordering Doctor Information', margin, yPosition)
+    yPosition += 15
+
+    addSection('Doctor', test.doctor ? `Dr. ${test.doctor.first_name} ${test.doctor.last_name}` : 'N/A')
+    if (test.doctor?.specialization) {
+      addSection('Specialization', test.doctor.specialization)
+    }
+    yPosition += 10
+
+    // Test Details
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Test Details', margin, yPosition)
+    yPosition += 15
+
+    addSection('Test Type', test.test_type)
+    addSection('Status', test.status.replace('_', ' ').toUpperCase())
+    
+    if (test.results) addSection('Results', test.results)
+    if (test.notes) addSection('Notes', test.notes)
+
+    // Add footer
+    const totalPages = doc.internal.pages.length - 1
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i)
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'normal')
+      doc.text(
+        `Page ${i} of ${totalPages} | Hospital Management System`, 
+        pageWidth / 2, 
+        pageHeight - 10, 
+        { align: 'center' }
+      )
+    }
+
+    // Save the PDF
+    const fileName = `lab-test-${test.id}-${new Date().toISOString().split('T')[0]}.pdf`
+    doc.save(fileName)
+  }
 
   const updateStatusMutation = useMutation(
     (newStatus: string) => api.put(`/api/lab-tests/${id}`, { status: newStatus }),
@@ -210,21 +402,157 @@ const LabTestDetailPage = () => {
             Complete Test
           </button>
         )}
-        {test.status === 'completed' && (
-          <button
-            onClick={() => window.print()}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-          >
-            Print Report
-          </button>
-        )}
         <button
-          onClick={() => navigate(`/lab/edit/${test.id}`)}
+          onClick={generateSingleTestReport}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+        >
+          <Download className="h-4 w-4" />
+          <span>Download Report</span>
+        </button>
+        <button
+          onClick={handleEditClick}
           className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
         >
           Edit Test
         </button>
       </div>
+
+      {/* Edit Test Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Lab Test"
+      >
+        <form onSubmit={handleEditTest} className="space-y-4 max-h-96 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Patient
+              </label>
+              <select 
+                className="input"
+                value={editTestForm.patient_id}
+                onChange={(e) => setEditTestForm({...editTestForm, patient_id: e.target.value})}
+                required
+              >
+                <option value="">Select Patient</option>
+                {patients?.map((patient: any) => (
+                  <option key={patient.id} value={patient.id}>
+                    {patient.first_name} {patient.last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Doctor
+              </label>
+              <select 
+                className="input"
+                value={editTestForm.doctor_id}
+                onChange={(e) => setEditTestForm({...editTestForm, doctor_id: e.target.value})}
+                required
+              >
+                <option value="">Select Doctor</option>
+                {doctors?.map((doctor: any) => (
+                  <option key={doctor.id} value={doctor.id}>
+                    Dr. {doctor.first_name} {doctor.last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Test Name
+              </label>
+              <input
+                type="text"
+                required
+                className="input"
+                value={editTestForm.test_name}
+                onChange={(e) => setEditTestForm({...editTestForm, test_name: e.target.value})}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Test Type
+              </label>
+              <input
+                type="text"
+                required
+                className="input"
+                value={editTestForm.test_type}
+                onChange={(e) => setEditTestForm({...editTestForm, test_type: e.target.value})}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              className="input"
+              value={editTestForm.status}
+              onChange={(e) => setEditTestForm({...editTestForm, status: e.target.value})}
+              required
+            >
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Results
+            </label>
+            <textarea
+              className="input"
+              rows={3}
+              value={editTestForm.results}
+              onChange={(e) => setEditTestForm({...editTestForm, results: e.target.value})}
+              placeholder="Enter test results..."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Notes
+            </label>
+            <textarea
+              className="input"
+              rows={3}
+              value={editTestForm.notes}
+              onChange={(e) => setEditTestForm({...editTestForm, notes: e.target.value})}
+              placeholder="Enter additional notes..."
+            />
+          </div>
+          
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => setShowEditModal(false)}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={editTestMutation.isLoading}
+            >
+              {editTestMutation.isLoading ? 'Updating...' : 'Update Test'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   )
 }
