@@ -6,9 +6,10 @@ interface ModalProps {
   onClose: () => void
   title: string
   children: ReactNode
+  size?: string
 }
 
-const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+const Modal = ({ isOpen, onClose, title, children, size = 'max-w-md' }: ModalProps) => {
   if (!isOpen) return null
 
   return (
@@ -20,7 +21,7 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       />
       
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-md p-6 mx-4 bg-white rounded-lg shadow-xl">
+      <div className={`relative z-10 w-full ${size} p-6 mx-4 bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           <button

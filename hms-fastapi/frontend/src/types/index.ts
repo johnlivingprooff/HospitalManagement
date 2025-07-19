@@ -5,6 +5,9 @@ export interface User {
   last_name: string
   role: string
   is_active: boolean
+  phone?: string
+  specialization?: string
+  license_number?: string
   created_at: string
   updated_at: string
 }
@@ -46,6 +49,11 @@ export interface Appointment {
   updated_at: string
 }
 
+export interface AppointmentWithRelations extends Appointment {
+  patient?: Patient
+  doctor?: User
+}
+
 export interface LoginCredentials {
   email: string
   password: string
@@ -81,4 +89,33 @@ export interface AppointmentCreate {
   appointment_type: string
   notes?: string
   symptoms?: string
+}
+
+export interface MedicalRecord {
+  id: number
+  patient_id: number
+  doctor_id: number
+  appointment_id?: number
+  record_type: string
+  title: string
+  description: string
+  diagnosis?: string
+  treatment?: string
+  medications?: string
+  lab_results?: string
+  notes?: string
+  visit_date?: string
+  created_at: string
+  updated_at?: string
+  patient?: {
+    first_name: string
+    last_name: string
+    email?: string
+    date_of_birth?: string
+  }
+  doctor?: {
+    first_name: string
+    last_name: string
+    specialization?: string
+  }
 }

@@ -328,147 +328,149 @@ const AppointmentDetailPage = () => {
         onClose={() => setShowEditModal(false)}
         title="Edit Appointment"
       >
-        <form onSubmit={handleEditSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="max-h-[80vh] overflow-y-auto px-1">
+          <form onSubmit={handleEditSubmit} className="py-4 space-y-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                  value={editForm.appointment_date}
+                  onChange={(e) => setEditForm({...editForm, appointment_date: e.target.value})}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  Duration (minutes)
+                </label>
+                <input
+                  type="number"
+                  min="15"
+                  step="15"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                  value={editForm.duration_minutes}
+                  onChange={(e) => setEditForm({...editForm, duration_minutes: Number(e.target.value)})}
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  Appointment Type
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                  value={editForm.appointment_type}
+                  onChange={(e) => setEditForm({...editForm, appointment_type: e.target.value})}
+                  required
+                >
+                  <option value="">Select Type</option>
+                  <option value="consultation">Consultation</option>
+                  <option value="follow_up">Follow-up</option>
+                  <option value="emergency">Emergency</option>
+                  <option value="routine_checkup">Routine Check-up</option>
+                  <option value="surgery">Surgery</option>
+                  <option value="therapy">Therapy</option>
+                </select>
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  Status
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({...editForm, status: e.target.value})}
+                  required
+                >
+                  <option value="scheduled">Scheduled</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="no_show">No Show</option>
+                </select>
+              </div>
+            </div>
+
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Date & Time
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Symptoms
               </label>
-              <input
-                type="datetime-local"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                value={editForm.appointment_date}
-                onChange={(e) => setEditForm({...editForm, appointment_date: e.target.value})}
-                required
+              <textarea
+                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-y focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Patient symptoms..."
+                value={editForm.symptoms}
+                onChange={(e) => setEditForm({...editForm, symptoms: e.target.value})}
               />
             </div>
+
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Duration (minutes)
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Notes
               </label>
-              <input
-                type="number"
-                min="15"
-                step="15"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                value={editForm.duration_minutes}
-                onChange={(e) => setEditForm({...editForm, duration_minutes: Number(e.target.value)})}
-                required
+              <textarea
+                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-y focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Additional notes..."
+                value={editForm.notes}
+                onChange={(e) => setEditForm({...editForm, notes: e.target.value})}
               />
             </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
+
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Appointment Type
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Diagnosis
               </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                value={editForm.appointment_type}
-                onChange={(e) => setEditForm({...editForm, appointment_type: e.target.value})}
-                required
-              >
-                <option value="">Select Type</option>
-                <option value="consultation">Consultation</option>
-                <option value="follow_up">Follow-up</option>
-                <option value="emergency">Emergency</option>
-                <option value="routine_checkup">Routine Check-up</option>
-                <option value="surgery">Surgery</option>
-                <option value="therapy">Therapy</option>
-              </select>
+              <textarea
+                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-y focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Medical diagnosis..."
+                value={editForm.diagnosis}
+                onChange={(e) => setEditForm({...editForm, diagnosis: e.target.value})}
+              />
             </div>
+
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Status
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Treatment Plan
               </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                value={editForm.status}
-                onChange={(e) => setEditForm({...editForm, status: e.target.value})}
-                required
-              >
-                <option value="scheduled">Scheduled</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="no_show">No Show</option>
-              </select>
+              <textarea
+                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm resize-y focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Treatment plan and recommendations..."
+                value={editForm.treatment_plan}
+                onChange={(e) => setEditForm({...editForm, treatment_plan: e.target.value})}
+              />
             </div>
-          </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Symptoms
-            </label>
-            <textarea
-              className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-              placeholder="Patient symptoms..."
-              value={editForm.symptoms}
-              onChange={(e) => setEditForm({...editForm, symptoms: e.target.value})}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Notes
-            </label>
-            <textarea
-              className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-              placeholder="Additional notes..."
-              value={editForm.notes}
-              onChange={(e) => setEditForm({...editForm, notes: e.target.value})}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Diagnosis
-            </label>
-            <textarea
-              className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-              placeholder="Medical diagnosis..."
-              value={editForm.diagnosis}
-              onChange={(e) => setEditForm({...editForm, diagnosis: e.target.value})}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Treatment Plan
-            </label>
-            <textarea
-              className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-              placeholder="Treatment plan and recommendations..."
-              value={editForm.treatment_plan}
-              onChange={(e) => setEditForm({...editForm, treatment_plan: e.target.value})}
-            />
-          </div>
-
-          <div className="flex justify-end pt-6 space-x-3 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => setShowEditModal(false)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-purple-600 border border-transparent rounded-lg shadow-sm hover:bg-purple-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={updateAppointmentMutation.isLoading}
-            >
-              {updateAppointmentMutation.isLoading && (
-                <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
-              {updateAppointmentMutation.isLoading ? 'Updating...' : 'Update Appointment'}
-            </button>
-          </div>
-        </form>
+            <div className="sticky bottom-0 flex justify-end pt-6 space-x-4 bg-white border-t border-gray-200">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="inline-flex items-center px-6 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center px-6 py-2 text-sm font-medium text-white transition-all duration-200 bg-purple-600 border border-transparent rounded-lg shadow-sm hover:bg-purple-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={updateAppointmentMutation.isLoading}
+              >
+                {updateAppointmentMutation.isLoading && (
+                  <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                )}
+                {updateAppointmentMutation.isLoading ? 'Updating...' : 'Update Appointment'}
+              </button>
+            </div>
+          </form>
+        </div>
       </Modal>
     </div>
   )
