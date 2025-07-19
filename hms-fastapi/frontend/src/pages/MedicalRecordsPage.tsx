@@ -285,24 +285,39 @@ const MedicalRecordsPage = () => {
   const filteredRecords = useClientSearch(
     records,
     searchTerm,
-    ['title', 'description', 'diagnosis', 'patient.first_name', 'patient.last_name', 'doctor.first_name', 'doctor.last_name'] as (keyof MedicalRecord)[],
+    ['title', 'description', 'diagnosis', 'treatment', 'medications', 'lab_results', 'record_type'],
     [
       // Record type filter
-      (record) => selectedType === 'all' || record.record_type === selectedType
+      (record) => selectedType === 'all' || record.record_type === selectedType,
+      // Manual search for nested patient and doctor fields
+      (record) => {
+        if (!searchTerm) return true
+        const searchLower = searchTerm.toLowerCase()
+        
+        // Search in patient name
+        const patientMatch = record.patient ? 
+          `${record.patient.first_name} ${record.patient.last_name}`.toLowerCase().includes(searchLower) : false
+        
+        // Search in doctor name
+        const doctorMatch = record.doctor ? 
+          `${record.doctor.first_name} ${record.doctor.last_name}`.toLowerCase().includes(searchLower) : false
+        
+        return patientMatch || doctorMatch
+      }
     ]
   )
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-32 h-32 border-b-2 rounded-full animate-spin border-primary-600"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-md p-4">
+      <div className="p-4 border border-red-200 rounded-md bg-red-50">
         <p className="text-red-800">Error loading medical records. Please try again.</p>
       </div>
     )
@@ -310,29 +325,29 @@ const MedicalRecordsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Medical Records</h1>
         <div className="flex items-center space-x-3">
           <button 
             onClick={generateReport}
             className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="w-4 h-4 mr-2" />
             Report
           </button>
           <button 
             className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-indigo-600 border border-transparent rounded-lg shadow-sm hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setShowAddModal(true)}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="w-4 h-4 mr-2" />
             Add New Record
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="p-4 bg-white rounded-lg shadow">
+        <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex-1">
             <SearchInput
               value={searchTerm}
@@ -359,10 +374,10 @@ const MedicalRecordsPage = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <FileTextIcon className="h-8 w-8 text-blue-600" />
+            <FileTextIcon className="w-8 h-8 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Records</p>
               <p className="text-2xl font-bold text-gray-900">{records?.length || 0}</p>
@@ -370,9 +385,9 @@ const MedicalRecordsPage = () => {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <UserIcon className="h-8 w-8 text-green-600" />
+            <UserIcon className="w-8 h-8 text-green-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Consultations</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -382,9 +397,9 @@ const MedicalRecordsPage = () => {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <FileTextIcon className="h-8 w-8 text-purple-600" />
+            <FileTextIcon className="w-8 h-8 text-purple-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Lab Results</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -394,9 +409,9 @@ const MedicalRecordsPage = () => {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <CalendarIcon className="h-8 w-8 text-orange-600" />
+            <CalendarIcon className="w-8 h-8 text-orange-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">This Month</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -408,7 +423,7 @@ const MedicalRecordsPage = () => {
       </div>
 
       {/* Records Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="overflow-hidden bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">Medical Records ({filteredRecords.length})</h2>
         </div>
@@ -422,22 +437,22 @@ const MedicalRecordsPage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Patient
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Record Title
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Doctor
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                     Actions
                   </th>
                 </tr>
@@ -453,7 +468,7 @@ const MedicalRecordsPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{record.title}</div>
                       {record.description && (
-                        <div className="text-sm text-gray-500 truncate max-w-xs">
+                        <div className="max-w-xs text-sm text-gray-500 truncate">
                           {record.description}
                         </div>
                       )}
@@ -463,13 +478,13 @@ const MedicalRecordsPage = () => {
                         {record.record_type.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                       {record.doctor ? `Dr. ${record.doctor.first_name} ${record.doctor.last_name}` : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                       {new Date(record.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                       <div className="flex space-x-2">
                         <button 
                           onClick={() => navigate(`/medical-records/${record.id}`)}
@@ -502,7 +517,7 @@ const MedicalRecordsPage = () => {
         <form onSubmit={handleEditRecord} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Patient
               </label>
               <select 
@@ -520,7 +535,7 @@ const MedicalRecordsPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Doctor
               </label>
               <select 
@@ -541,7 +556,7 @@ const MedicalRecordsPage = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Record Type
               </label>
               <select 
@@ -560,7 +575,7 @@ const MedicalRecordsPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Appointment ID (Optional)
               </label>
               <input
@@ -574,7 +589,7 @@ const MedicalRecordsPage = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Title
             </label>
             <input
@@ -588,7 +603,7 @@ const MedicalRecordsPage = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Description
             </label>
             <textarea
@@ -603,7 +618,7 @@ const MedicalRecordsPage = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Diagnosis
               </label>
               <textarea
@@ -615,7 +630,7 @@ const MedicalRecordsPage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Treatment
               </label>
               <textarea
@@ -630,7 +645,7 @@ const MedicalRecordsPage = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Medications
               </label>
               <textarea
@@ -642,7 +657,7 @@ const MedicalRecordsPage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Lab Results
               </label>
               <textarea
@@ -689,7 +704,7 @@ const MedicalRecordsPage = () => {
         <form onSubmit={handleAddRecord} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Patient
               </label>
               <select 
@@ -707,7 +722,7 @@ const MedicalRecordsPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Doctor
               </label>
               <select 
@@ -728,7 +743,7 @@ const MedicalRecordsPage = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Record Type
               </label>
               <select 
@@ -747,7 +762,7 @@ const MedicalRecordsPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Appointment ID (Optional)
               </label>
               <input
@@ -761,7 +776,7 @@ const MedicalRecordsPage = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Title
             </label>
             <input
@@ -775,7 +790,7 @@ const MedicalRecordsPage = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Description
             </label>
             <textarea
@@ -790,7 +805,7 @@ const MedicalRecordsPage = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Diagnosis
               </label>
               <textarea
@@ -802,7 +817,7 @@ const MedicalRecordsPage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Treatment
               </label>
               <textarea
@@ -817,7 +832,7 @@ const MedicalRecordsPage = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Medications
               </label>
               <textarea
@@ -829,7 +844,7 @@ const MedicalRecordsPage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Lab Results
               </label>
               <textarea
