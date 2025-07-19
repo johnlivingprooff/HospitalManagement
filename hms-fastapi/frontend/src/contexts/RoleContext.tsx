@@ -29,7 +29,7 @@ const ROLE_PERMISSIONS = {
     lab: ['read', 'write'],
     pharmacy: ['read', 'write'],
     bills: ['read', 'write'],
-    users: ['read'], // Can view users but not manage them
+    users: [], // No user management access - only admin can manage users
     settings: ['read'],
     reports: ['read', 'write'],
   },
@@ -38,7 +38,7 @@ const ROLE_PERMISSIONS = {
     dashboard: ['read'],
     patients: ['read', 'write'],
     appointments: ['read', 'write'],
-    doctors: ['read'],
+    doctors: [], // No access to doctors page
     wards: ['read', 'write'],
     medical_records: ['read', 'write'],
     lab: ['read', 'write'],

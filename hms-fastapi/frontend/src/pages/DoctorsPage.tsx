@@ -6,8 +6,32 @@ import { UserIcon, MailIcon, Plus, Calendar, ChevronLeft, ChevronRight } from 'l
 import Modal from '../components/Modal'
 import SearchInput from '../components/SearchInput'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
+import { useRole } from '../contexts/RoleContext'
+import { useAuth } from '../contexts/AuthContext'
 
 const DoctorsPage = () => {
+  const { canAccess, isAdmin, isDoctor } = useRole()
+  const { user: currentUser } = useAuth()
+  
+  // Check if user has access to doctors page
+  if (!canAccess('doctors')) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="mb-4 text-6xl text-gray-400">🚫</div>
+          <h2 className="mb-2 text-2xl font-semibold text-gray-800">Access Denied</h2>
+          <p className="text-gray-600">You don't have permission to access the Doctors page.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Helper function to check if current user can edit a doctor
+  const canEditDoctor = (doctor: User): boolean => {
+    if (isAdmin()) return true // Admins can edit any doctor
+    if (isDoctor() && currentUser && doctor.id === currentUser.id) return true // Doctors can only edit themselves
+    return false
+  }
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
@@ -210,6 +234,12 @@ const DoctorsPage = () => {
   }
 
   const handleEditClick = (doctor: User) => {
+    // Double-check permission before allowing edit
+    if (!canEditDoctor(doctor)) {
+      alert('You can only edit your own profile.')
+      return
+    }
+    
     setEditingDoctor(doctor)
     setEditDoctorForm({
       first_name: doctor.first_name,
@@ -305,14 +335,23 @@ const DoctorsPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Doctors</h1>
-        <button 
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 border border-transparent rounded-lg shadow-sm bg-emerald-600 hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={() => setShowAddModal(true)}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add New Doctor
-        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Doctors</h1>
+          {isDoctor() && !isAdmin() && (
+            <p className="mt-1 text-sm text-gray-600">
+              You can view all doctors' schedules and edit only your own profile.
+            </p>
+          )}
+        </div>
+        {isAdmin() && (
+          <button 
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 border border-transparent rounded-lg shadow-sm bg-emerald-600 hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setShowAddModal(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Doctor
+          </button>
+        )}
       </div>
 
       {/* Search and Filters */}
@@ -367,8 +406,13 @@ const DoctorsPage = () => {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">
+                      <h3 className="flex items-center text-lg font-medium text-gray-900">
                         Dr. {doctor.first_name} {doctor.last_name}
+                        {isDoctor() && currentUser && doctor.id === currentUser.id && (
+                          <span className="ml-2 px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                            You
+                          </span>
+                        )}
                       </h3>
                       {doctor.specialization && (
                         <p className="mb-1 text-sm text-gray-600">{doctor.specialization}</p>
@@ -397,12 +441,14 @@ const DoctorsPage = () => {
                       <Calendar className="w-4 h-4 mr-1" />
                       View Schedule
                     </button>
-                    <button 
-                      onClick={() => handleEditClick(doctor)}
-                      className="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
-                    >
-                      Edit
-                    </button>
+                    {canEditDoctor(doctor) && (
+                      <button 
+                        onClick={() => handleEditClick(doctor)}
+                        className="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                      >
+                        Edit
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -457,13 +503,15 @@ const DoctorsPage = () => {
                 Today
               </button>
               
-              <button
-                onClick={() => setShowAddAppointmentModal(true)}
-                className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors rounded-lg bg-emerald-600 hover:bg-emerald-700"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Appointment
-              </button>
+              {(isAdmin() || (isDoctor() && currentUser && selectedDoctor && selectedDoctor.id === currentUser.id)) && (
+                <button
+                  onClick={() => setShowAddAppointmentModal(true)}
+                  className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors rounded-lg bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Appointment
+                </button>
+              )}
             </div>
           </div>
 
