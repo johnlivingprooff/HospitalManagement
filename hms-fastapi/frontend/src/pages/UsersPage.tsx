@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { useNavigate } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom'
 import { 
   Users, 
   UserPlus, 
@@ -9,9 +9,6 @@ import {
   ShieldAlert, 
   Edit, 
   Trash2,
-  Search,
-  Filter,
-  MoreVertical,
   Eye,
   UserX
 } from 'lucide-react'
@@ -35,17 +32,17 @@ interface User {
 }
 
 const UsersPage = () => {
-  const { canAccess, isAdmin } = useRole()
+  const { canAccess } = useRole()
   
   // Check if user has access to users page (only admin)
   if (!canAccess('users')) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="text-gray-400 text-6xl mb-4">🚫</div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Access Denied</h2>
+          <div className="mb-4 text-6xl text-gray-400">🚫</div>
+          <h2 className="mb-2 text-2xl font-semibold text-gray-800">Access Denied</h2>
           <p className="text-gray-600">You don't have permission to access the User Management page.</p>
-          <p className="text-gray-500 text-sm mt-2">Only administrators can manage users.</p>
+          <p className="mt-2 text-sm text-gray-500">Only administrators can manage users.</p>
         </div>
       </div>
     )
@@ -58,7 +55,7 @@ const UsersPage = () => {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const navigate = useNavigate()
+//   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const [userForm, setUserForm] = useState({

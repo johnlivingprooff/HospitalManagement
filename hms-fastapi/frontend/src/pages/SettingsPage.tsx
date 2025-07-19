@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { Settings, User, Bell, Shield, Database, Palette } from 'lucide-react'
+import { User, Bell, Shield, Database, Palette } from 'lucide-react'
 
 const SettingsPage = () => {
   const { user } = useAuth()

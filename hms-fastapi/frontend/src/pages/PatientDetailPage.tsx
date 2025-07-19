@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { ArrowLeft, User, Phone, Mail, Calendar, MapPin } from 'lucide-react'
@@ -34,15 +34,15 @@ const PatientDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-b-2 border-green-600 rounded-full animate-spin"></div>
       </div>
     )
   }
 
   if (error || !patient) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-md p-4">
+      <div className="p-4 border border-red-200 rounded-md bg-red-50">
         <p className="text-red-800">Failed to load patient details</p>
       </div>
     )
@@ -54,9 +54,9 @@ const PatientDetailPage = () => {
       <div className="flex items-center space-x-4">
         <button
           onClick={() => navigate('/patients')}
-          className="bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition-colors duration-200"
+          className="p-2 transition-colors duration-200 bg-gray-100 rounded-lg hover:bg-gray-200"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -67,11 +67,11 @@ const PatientDetailPage = () => {
       </div>
 
       {/* Patient Information Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Personal Information */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <User className="h-5 w-5 mr-2 text-green-600" />
+        <div className="p-6 bg-white rounded-lg shadow">
+          <h2 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
+            <User className="w-5 h-5 mr-2 text-green-600" />
             Personal Information
           </h2>
           <div className="space-y-4">
@@ -81,8 +81,8 @@ const PatientDetailPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
-              <p className="text-gray-900 flex items-center">
-                <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+              <p className="flex items-center text-gray-900">
+                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
                 {new Date(patient.date_of_birth).toLocaleDateString()}
               </p>
             </div>
@@ -104,30 +104,30 @@ const PatientDetailPage = () => {
         </div>
 
         {/* Contact Information */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Phone className="h-5 w-5 mr-2 text-green-600" />
+        <div className="p-6 bg-white rounded-lg shadow">
+          <h2 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
+            <Phone className="w-5 h-5 mr-2 text-green-600" />
             Contact Information
           </h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Email</label>
-              <p className="text-gray-900 flex items-center">
-                <Mail className="h-4 w-4 mr-2 text-gray-500" />
+              <p className="flex items-center text-gray-900">
+                <Mail className="w-4 h-4 mr-2 text-gray-500" />
                 {patient.email}
               </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Phone</label>
-              <p className="text-gray-900 flex items-center">
-                <Phone className="h-4 w-4 mr-2 text-gray-500" />
+              <p className="flex items-center text-gray-900">
+                <Phone className="w-4 h-4 mr-2 text-gray-500" />
                 {patient.phone || 'Not provided'}
               </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Address</label>
-              <p className="text-gray-900 flex items-center">
-                <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+              <p className="flex items-center text-gray-900">
+                <MapPin className="w-4 h-4 mr-2 text-gray-500" />
                 {patient.address || 'Not provided'}
               </p>
             </div>
@@ -145,7 +145,7 @@ const PatientDetailPage = () => {
       <div className="flex justify-end space-x-4">
         <button
           onClick={() => navigate(`/patients/edit/${patient.id}`)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+          className="px-4 py-2 text-white transition-colors duration-200 bg-green-600 rounded-lg hover:bg-green-700"
         >
           Edit Patient
         </button>

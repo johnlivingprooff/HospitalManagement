@@ -11,12 +11,7 @@ import {
   UserPlus,
   UserMinus,
   Eye,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  MapPin,
-  Calendar,
-  Stethoscope
+  CheckCircle
 } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
@@ -303,15 +298,15 @@ const WardsPage = () => {
     return 'text-green-600'
   }
 
-  const getPatientStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'admitted': return 'bg-blue-100 text-blue-800'
-      case 'stable': return 'bg-green-100 text-green-800'
-      case 'critical': return 'bg-red-100 text-red-800'
-      case 'recovering': return 'bg-yellow-100 text-yellow-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
+//   const getPatientStatusColor = (status: string) => {
+//     switch (status.toLowerCase()) {
+//       case 'admitted': return 'bg-blue-100 text-blue-800'
+//       case 'stable': return 'bg-green-100 text-green-800'
+//       case 'critical': return 'bg-red-100 text-red-800'
+//       case 'recovering': return 'bg-yellow-100 text-yellow-800'
+//       default: return 'bg-gray-100 text-gray-800'
+//     }
+//   }
 
   // Apply client-side filtering
   const filteredWards = useClientSearch(
@@ -456,11 +451,11 @@ const WardsPage = () => {
         {/* Wards Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredWards.map((ward) => (
-            <div key={ward.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+            <div key={ward.id} className="transition-shadow duration-200 bg-white rounded-lg shadow hover:shadow-md">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
-                    <Building2 className="w-6 h-6 text-blue-600 mr-2" />
+                    <Building2 className="w-6 h-6 mr-2 text-blue-600" />
                     <h3 className="text-lg font-semibold text-gray-900">{ward.name}</h3>
                   </div>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getWardTypeColor(ward.type)}`}>
@@ -468,7 +463,7 @@ const WardsPage = () => {
                   </span>
                 </div>
                 
-                <div className="space-y-3 mb-4">
+                <div className="mb-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Floor:</span>
                     <span className="text-sm font-medium text-gray-900">Level {ward.floor}</span>
@@ -481,7 +476,7 @@ const WardsPage = () => {
                     </span>
                   </div>
                   
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full h-2 bg-gray-200 rounded-full">
                     <div 
                       className={`h-2 rounded-full transition-all duration-300 ${
                         (ward.current_occupancy / ward.capacity) >= 0.9 ? 'bg-red-500' :
@@ -497,7 +492,7 @@ const WardsPage = () => {
                 </div>
 
                 {/* Ward Actions */}
-                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="flex space-x-2">
                     <button 
                       onClick={() => handleEditClick(ward)}
@@ -530,9 +525,9 @@ const WardsPage = () => {
 
                 {/* Current Patients Preview */}
                 {ward.patients && ward.patients.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Current Patients</h4>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                  <div className="pt-4 mt-4 border-t border-gray-200">
+                    <h4 className="mb-2 text-sm font-medium text-gray-900">Current Patients</h4>
+                    <div className="space-y-2 overflow-y-auto max-h-32">
                       {ward.patients.slice(0, 3).map((wp) => (
                         <div key={wp.id} className="flex items-center justify-between text-xs">
                           <span className="text-gray-600">
@@ -542,7 +537,7 @@ const WardsPage = () => {
                             <span className="text-gray-500">Bed {wp.bed_number}</span>
                             <button 
                               onClick={() => handleDischargeClick(wp)}
-                              className="bg-orange-100 hover:bg-orange-200 text-orange-700 px-2 py-1 rounded text-xs transition-colors duration-200"
+                              className="px-2 py-1 text-xs text-orange-700 transition-colors duration-200 bg-orange-100 rounded hover:bg-orange-200"
                             >
                               <UserMinus className="w-3 h-3" />
                             </button>
@@ -550,7 +545,7 @@ const WardsPage = () => {
                         </div>
                       ))}
                       {ward.patients.length > 3 && (
-                        <div className="text-xs text-gray-500 text-center">
+                        <div className="text-xs text-center text-gray-500">
                           +{ward.patients.length - 3} more patients
                         </div>
                       )}
@@ -563,8 +558,8 @@ const WardsPage = () => {
         </div>
 
         {filteredWards.length === 0 && (
-          <div className="text-center py-12">
-            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <div className="py-12 text-center">
+            <Building2 className="w-12 h-12 mx-auto mb-4 text-gray-400" />
             <p className="text-gray-500">No wards found matching your criteria.</p>
           </div>
         )}
@@ -919,7 +914,7 @@ const WardsPage = () => {
         >
           <form onSubmit={handleDischargePatient} className="space-y-4">
             {selectedWardPatient && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
                 <h4 className="font-medium text-blue-900">
                   {selectedWardPatient.patient.first_name} {selectedWardPatient.patient.last_name}
                 </h4>
@@ -966,7 +961,7 @@ const WardsPage = () => {
               </button>
               <button
                 type="submit"
-                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                className="px-4 py-2 text-white transition-colors duration-200 bg-orange-600 rounded-lg hover:bg-orange-700"
                 disabled={dischargePatientMutation.isLoading}
               >
                 {dischargePatientMutation.isLoading ? 'Discharging...' : 'Discharge Patient'}

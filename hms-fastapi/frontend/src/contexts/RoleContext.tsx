@@ -1,8 +1,33 @@
 import { createContext, useContext } from 'react'
 import { useAuth } from './AuthContext'
 
+// Define action types
+type Action = 'read' | 'write' | 'delete'
+
+// Define resource types
+type Resource = 
+  | 'dashboard' 
+  | 'patients' 
+  | 'appointments' 
+  | 'doctors' 
+  | 'wards' 
+  | 'medical_records' 
+  | 'lab' 
+  | 'pharmacy' 
+  | 'bills' 
+  | 'users' 
+  | 'settings' 
+  | 'reports'
+
+// Define role permissions structure
+type RolePermissions = {
+  [K in Resource]: Action[]
+}
+
+type Roles = 'admin' | 'doctor' | 'nurse' | 'receptionist'
+
 // Define role hierarchy and permissions
-const ROLE_PERMISSIONS = {
+const ROLE_PERMISSIONS: Record<Roles, RolePermissions> = {
   admin: {
     // Admin has full access to everything
     dashboard: ['read'],
@@ -85,25 +110,38 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const hasPermission = (resource: string, action: string): boolean => {
-    const userRole = getUserRole()
-    const rolePermissions = ROLE_PERMISSIONS[userRole as keyof typeof ROLE_PERMISSIONS]
+    const userRole = getUserRole() as Roles
+    const rolePermissions = ROLE_PERMISSIONS[userRole]
     
-    if (!rolePermissions || !rolePermissions[resource as keyof typeof rolePermissions]) {
+    // Fallback for unknown roles
+    if (!rolePermissions) {
       return false
     }
     
-    return rolePermissions[resource as keyof typeof rolePermissions].includes(action)
+    const resourceKey = resource as Resource
+    if (!rolePermissions[resourceKey]) {
+      return false
+    }
+    
+    const actionKey = action as Action
+    return rolePermissions[resourceKey].includes(actionKey)
   }
 
   const canAccess = (resource: string): boolean => {
-    const userRole = getUserRole()
-    const rolePermissions = ROLE_PERMISSIONS[userRole as keyof typeof ROLE_PERMISSIONS]
+    const userRole = getUserRole() as Roles
+    const rolePermissions = ROLE_PERMISSIONS[userRole]
     
-    if (!rolePermissions || !rolePermissions[resource as keyof typeof rolePermissions]) {
+    // Fallback for unknown roles
+    if (!rolePermissions) {
       return false
     }
     
-    return rolePermissions[resource as keyof typeof rolePermissions].length > 0
+    const resourceKey = resource as Resource
+    if (!rolePermissions[resourceKey]) {
+      return false
+    }
+    
+    return rolePermissions[resourceKey].length > 0
   }
 
   const isAdmin = (): boolean => getUserRole() === 'admin'

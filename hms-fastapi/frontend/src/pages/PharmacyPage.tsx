@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { PillIcon, ClockIcon, CheckCircleIcon, XCircleIcon, Plus } from 'lucide-react'
+import { PillIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
 import SearchInput from '../components/SearchInput'

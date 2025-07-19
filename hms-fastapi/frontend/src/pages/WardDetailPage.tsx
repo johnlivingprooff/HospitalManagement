@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { 
@@ -6,19 +6,13 @@ import {
   Building2, 
   Bed, 
   Users, 
-  MapPin, 
   Calendar,
   Clock,
   Stethoscope,
-  FileText,
   UserPlus,
   UserMinus,
-  Edit,
-  AlertCircle,
   CheckCircle,
-  Activity,
   Phone,
-  Mail,
   User,
   Download
 } from 'lucide-react'
@@ -361,7 +355,7 @@ const WardDetailPage = () => {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => navigate('/wards')}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              className="p-2 text-gray-600 transition-colors duration-200 rounded-lg hover:text-gray-900 hover:bg-gray-100"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -453,7 +447,7 @@ const WardDetailPage = () => {
               {((ward.current_occupancy / ward.capacity) * 100).toFixed(1)}% occupied
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-4">
+          <div className="w-full h-4 bg-gray-200 rounded-full">
             <div 
               className={`h-4 rounded-full transition-all duration-300 ${
                 (ward.current_occupancy / ward.capacity) >= 0.9 ? 'bg-red-500' :
@@ -471,7 +465,7 @@ const WardDetailPage = () => {
         {/* Ward Description */}
         {ward.description && (
           <div className="p-6 bg-white rounded-lg shadow">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Ward Description</h3>
+            <h3 className="mb-3 text-lg font-medium text-gray-900">Ward Description</h3>
             <p className="text-gray-600">{ward.description}</p>
           </div>
         )}
@@ -488,7 +482,7 @@ const WardDetailPage = () => {
           
           {ward.patients.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
-              <Bed className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <Bed className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <p>No patients currently admitted to this ward.</p>
             </div>
           ) : (
@@ -536,7 +530,7 @@ const WardDetailPage = () => {
                               {wardPatient.patient.email}
                             </div>
                             {wardPatient.patient.phone && (
-                              <div className="text-xs text-gray-400 flex items-center">
+                              <div className="flex items-center text-xs text-gray-400">
                                 <Phone className="w-3 h-3 mr-1" />
                                 {wardPatient.patient.phone}
                               </div>
@@ -546,7 +540,7 @@ const WardDetailPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <Bed className="w-4 h-4 text-gray-400 mr-2" />
+                          <Bed className="w-4 h-4 mr-2 text-gray-400" />
                           <span className="text-sm font-medium text-gray-900">
                             {wardPatient.bed_number}
                           </span>
@@ -567,7 +561,7 @@ const WardDetailPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {wardPatient.doctor ? (
                           <div className="flex items-center">
-                            <Stethoscope className="w-4 h-4 text-gray-400 mr-2" />
+                            <Stethoscope className="w-4 h-4 mr-2 text-gray-400" />
                             <span className="text-sm text-gray-900">
                               Dr. {wardPatient.doctor.first_name} {wardPatient.doctor.last_name}
                             </span>
@@ -578,7 +572,7 @@ const WardDetailPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                          <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                           <div>
                             <div className="text-sm text-gray-900">
                               {new Date(wardPatient.admission_date).toLocaleDateString()}
@@ -724,12 +718,12 @@ const WardDetailPage = () => {
         >
           <form onSubmit={handleDischargePatient} className="space-y-4">
             {selectedPatient && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-medium text-blue-900 flex items-center">
+              <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                <h4 className="flex items-center font-medium text-blue-900">
                   <User className="w-4 h-4 mr-2" />
                   {selectedPatient.patient.first_name} {selectedPatient.patient.last_name}
                 </h4>
-                <div className="mt-2 text-sm text-blue-700 space-y-1">
+                <div className="mt-2 space-y-1 text-sm text-blue-700">
                   <p className="flex items-center">
                     <Bed className="w-3 h-3 mr-1" />
                     Bed: {selectedPatient.bed_number}
@@ -782,7 +776,7 @@ const WardDetailPage = () => {
               </button>
               <button
                 type="submit"
-                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                className="px-4 py-2 text-white transition-colors duration-200 bg-orange-600 rounded-lg hover:bg-orange-700"
                 disabled={dischargePatientMutation.isLoading}
               >
                 {dischargePatientMutation.isLoading ? 'Discharging...' : 'Discharge Patient'}
