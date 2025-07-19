@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    ALLOWED_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173", "https://your-frontend-url.netlify.app"]
+    ALLOWED_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173", "https://hospitalmanagementmihr.netlify.app"]
     
     # App
     APP_NAME: str = "HMS FastAPI"
