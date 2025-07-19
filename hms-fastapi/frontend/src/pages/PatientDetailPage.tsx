@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { ArrowLeft, User, Phone, Mail, Calendar, MapPin } from 'lucide-react'
-import api from '../services/api'
+import api from '../lib/api'
 
 interface Patient {
   id: number

@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { FileTextIcon, CalendarIcon, UserIcon, SearchIcon, Plus } from 'lucide-react'
+import { FileTextIcon, CalendarIcon, UserIcon, Plus } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import SearchInput from '../components/SearchInput'
+import { useClientSearch } from '../hooks/useOptimizedSearch'
 
 interface MedicalRecord {
   id: number
@@ -120,16 +122,15 @@ const MedicalRecordsPage = () => {
     }
   }
 
-  const filteredRecords = records?.filter(record => {
-    const matchesSearch = searchTerm === '' || 
-      record.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.patient?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.patient?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesType = selectedType === 'all' || record.record_type === selectedType
-    
-    return matchesSearch && matchesType
-  }) || []
+  const filteredRecords = useClientSearch(
+    records,
+    searchTerm,
+    ['title', 'description', 'diagnosis', 'patient.first_name', 'patient.last_name', 'doctor.first_name', 'doctor.last_name'] as (keyof MedicalRecord)[],
+    [
+      // Record type filter
+      (record) => selectedType === 'all' || record.record_type === selectedType
+    ]
+  )
 
   if (isLoading) {
     return (
@@ -164,16 +165,12 @@ const MedicalRecordsPage = () => {
       <div className="bg-white p-4 rounded-lg shadow">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by patient name or record title..."
-                className="input pl-10 w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search by patient name, record title, or diagnosis..."
+              className="w-full"
+            />
           </div>
           <div>
             <select

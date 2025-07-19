@@ -5,16 +5,30 @@ from contextlib import asynccontextmanager
 import os
 from app.core.config import settings
 from app.core.database import create_tables
+from app.core.search_init import initialize_search_optimization
+from app.services.cache_service import cache_service
 from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard
 
-# Create tables on startup
+# Create tables and initialize search optimization on startup
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    print("🚀 Starting HMS FastAPI application...")
     create_tables()
+    
+    # Initialize cache service
+    await cache_service.initialize()
+    
+    # Initialize search optimization (indexes, cache, etc.)
+    await initialize_search_optimization()
+    
+    print("✅ HMS FastAPI application started successfully")
     yield
+    
     # Shutdown
-    pass
+    print("🔄 Shutting down HMS FastAPI application...")
+    await cache_service.close()
+    print("✅ HMS FastAPI application shut down successfully")
 
 # Create FastAPI app
 app = FastAPI(

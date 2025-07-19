@@ -1,8 +1,8 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { ArrowLeft, TestTube, User, Stethoscope, Calendar, Clock, FileText } from 'lucide-react'
-import api from '../services/api'
+import { ArrowLeft, TestTube2, User, Stethoscope, Calendar, Clock, FileText } from 'lucide-react'
+import api from '../lib/api'
 
 interface LabTest {
   id: number
@@ -23,7 +23,7 @@ interface LabTest {
   doctor: {
     first_name: string
     last_name: string
-    specialization: string
+    specialization?: string
   }
 }
 
@@ -102,7 +102,7 @@ const LabTestDetailPage = () => {
         {/* Test Information */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <TestTube className="h-5 w-5 mr-2 text-cyan-600" />
+            <TestTube2 className="h-5 w-5 mr-2 text-cyan-600" />
             Test Information
           </h2>
           <div className="space-y-4">
@@ -159,7 +159,9 @@ const LabTestDetailPage = () => {
                 <Stethoscope className="h-4 w-4 mr-2 text-gray-500" />
                 Dr. {test.doctor.first_name} {test.doctor.last_name}
               </p>
-              <p className="text-sm text-gray-500">{test.doctor.specialization}</p>
+              {test.doctor.specialization && (
+                <p className="text-sm text-gray-500">{test.doctor.specialization}</p>
+              )}
             </div>
           </div>
         </div>

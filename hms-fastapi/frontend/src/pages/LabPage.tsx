@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { TestTubeIcon, ClockIcon, CheckCircleIcon, AlertCircleIcon, SearchIcon, Plus } from 'lucide-react'
+import { TestTubeIcon, ClockIcon, CheckCircleIcon, AlertCircleIcon, Plus } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import SearchInput from '../components/SearchInput'
+import { useClientSearch } from '../hooks/useOptimizedSearch'
 
 interface LabTest {
   id: number
@@ -122,16 +124,15 @@ const LabPage = () => {
     }
   }
 
-  const filteredTests = labTests?.filter(test => {
-    const matchesSearch = searchTerm === '' || 
-      test.test_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      test.patient?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      test.patient?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesStatus = selectedStatus === 'all' || test.status === selectedStatus
-    
-    return matchesSearch && matchesStatus
-  }) || []
+  const filteredTests = useClientSearch(
+    labTests,
+    searchTerm,
+    ['test_name', 'test_type', 'patient.first_name', 'patient.last_name', 'doctor.first_name', 'doctor.last_name'] as (keyof LabTest)[],
+    [
+      // Status filter
+      (test) => selectedStatus === 'all' || test.status === selectedStatus
+    ]
+  )
 
   const updateStatus = async (id: number, newStatus: string) => {
     try {
@@ -175,16 +176,12 @@ const LabPage = () => {
       <div className="bg-white p-4 rounded-lg shadow">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by test name or patient..."
-                className="input pl-10 w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search by test name, type, or patient..."
+              className="w-full"
+            />
           </div>
           <div>
             <select

@@ -105,6 +105,9 @@ class AppointmentResponse(AppointmentBase):
     treatment_plan: Optional[str]
     created_at: datetime
     updated_at: datetime
+    # Include related patient and doctor information
+    patient: Optional['PatientResponse'] = None
+    doctor: Optional['UserResponse'] = None
 
 # Medical Record schemas
 class MedicalRecordBase(BaseSchema):

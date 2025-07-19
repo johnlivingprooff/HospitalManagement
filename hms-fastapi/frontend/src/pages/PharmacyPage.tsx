@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { PillIcon, ClockIcon, CheckCircleIcon, XCircleIcon, SearchIcon, Plus } from 'lucide-react'
+import { PillIcon, ClockIcon, CheckCircleIcon, XCircleIcon, Plus } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import SearchInput from '../components/SearchInput'
+import { useClientSearch } from '../hooks/useOptimizedSearch'
 
 interface Prescription {
   id: number
@@ -126,16 +128,15 @@ const PharmacyPage = () => {
     }
   }
 
-  const filteredPrescriptions = (prescriptions || []).filter(prescription => {
-    const matchesSearch = searchTerm === '' || 
-      prescription.medication_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prescription.patient?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prescription.patient?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesStatus = selectedStatus === 'all' || prescription.status === selectedStatus
-    
-    return matchesSearch && matchesStatus
-  })
+  const filteredPrescriptions = useClientSearch(
+    prescriptions,
+    searchTerm,
+    ['medication_name', 'patient.first_name', 'patient.last_name', 'doctor.first_name', 'doctor.last_name'] as (keyof Prescription)[],
+    [
+      // Status filter
+      (prescription) => selectedStatus === 'all' || prescription.status === selectedStatus
+    ]
+  )
 
   const updatePrescriptionMutation = useMutation(
     ({ id, status }: { id: number; status: string }) =>
@@ -153,6 +154,33 @@ const PharmacyPage = () => {
 
   const updateStatus = (id: number, newStatus: string) => {
     updatePrescriptionMutation.mutate({ id, status: newStatus })
+  }
+
+  const getNextStatus = (currentStatus: string) => {
+    switch (currentStatus.toLowerCase()) {
+      case 'pending': return 'ready'
+      case 'ready': return 'dispensed'
+      case 'dispensed': return 'dispensed' // Already at final status
+      default: return 'pending'
+    }
+  }
+
+  const getNextStatusLabel = (currentStatus: string) => {
+    switch (currentStatus.toLowerCase()) {
+      case 'pending': return 'Mark Ready'
+      case 'ready': return 'Dispense'
+      case 'dispensed': return 'Dispensed'
+      default: return 'Update Status'
+    }
+  }
+
+  const getNextStatusColor = (currentStatus: string) => {
+    switch (currentStatus.toLowerCase()) {
+      case 'pending': return 'bg-blue-100 hover:bg-blue-200 text-blue-700'
+      case 'ready': return 'bg-green-100 hover:bg-green-200 text-green-700'
+      case 'dispensed': return 'bg-gray-100 text-gray-400 cursor-not-allowed'
+      default: return 'bg-purple-100 hover:bg-purple-200 text-purple-700'
+    }
   }
 
   if (isLoading) {
@@ -201,16 +229,12 @@ const PharmacyPage = () => {
       <div className="p-4 bg-white rounded-lg shadow">
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex-1">
-            <div className="relative">
-              <SearchIcon className="absolute w-4 h-4 text-gray-400 left-3 top-3" />
-              <input
-                type="text"
-                placeholder="Search by medication or patient name..."
-                className="w-full pl-10 input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search by medication, patient, or doctor..."
+              className="w-full"
+            />
           </div>
           <div>
             <select
@@ -362,22 +386,13 @@ const PharmacyPage = () => {
                     </td>
                     <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                       <div className="flex space-x-2">
-                        {prescription.status === 'pending' && (
-                          <button 
-                            onClick={() => updateStatus(prescription.id, 'ready')}
-                            className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
-                          >
-                            Mark Ready
-                          </button>
-                        )}
-                        {prescription.status === 'ready' && (
-                          <button 
-                            onClick={() => updateStatus(prescription.id, 'dispensed')}
-                            className="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"
-                          >
-                            Dispense
-                          </button>
-                        )}
+                        <button 
+                          onClick={() => updateStatus(prescription.id, getNextStatus(prescription.status))}
+                          disabled={prescription.status === 'dispensed'}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 ${getNextStatusColor(prescription.status)}`}
+                        >
+                          {getNextStatusLabel(prescription.status)}
+                        </button>
                         <button 
                           onClick={() => navigate(`/pharmacy/${prescription.id}`)}
                           className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200"

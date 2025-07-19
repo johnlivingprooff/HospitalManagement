@@ -8,6 +8,12 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:d433847adf9344c4a5e31f6fdb51be0a@localhost:5432/hms")
     
+    # Redis Cache
+    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
+    CACHE_TTL: int = int(os.getenv("CACHE_TTL", "300"))  # 5 minutes default
+    SEARCH_CACHE_TTL: int = int(os.getenv("SEARCH_CACHE_TTL", "300"))  # 5 minutes for search results
+    STATS_CACHE_TTL: int = int(os.getenv("STATS_CACHE_TTL", "600"))  # 10 minutes for statistics
+    
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
     ALGORITHM: str = "HS256"

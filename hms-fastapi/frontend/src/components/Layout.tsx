@@ -44,7 +44,10 @@ const Layout = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsSidebarOpen(false)} />
         <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
           <div className="flex items-center justify-between p-4 border-b">
-            <h1 className="text-xl font-bold text-gray-900">HMS</h1>
+            <div className="flex items-center space-x-3">
+              <img src="/logo.svg" alt="HMS Logo" className="h-8 w-8" />
+              <h1 className="text-xl font-bold text-gray-900">HMS</h1>
+            </div>
             <button onClick={() => setIsSidebarOpen(false)}>
               <X className="h-6 w-6" />
             </button>
@@ -75,7 +78,10 @@ const Layout = () => {
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 lg:bg-white lg:shadow-lg">
         <div className="flex items-center justify-center p-6 border-b">
-          <h1 className="text-2xl font-bold text-gray-900">HMS</h1>
+          <div className="flex items-center space-x-3">
+            <img src="/logo.svg" alt="HMS Logo" className="h-10 w-10" />
+            <h1 className="text-2xl font-bold text-gray-900">HMS</h1>
+          </div>
         </div>
         <nav className="flex-1 mt-4">
           {navigation.map((item) => {

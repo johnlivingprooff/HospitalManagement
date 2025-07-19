@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { ArrowLeft, FileText, User, Stethoscope, Calendar, Printer } from 'lucide-react'
-import api from '../services/api'
+import api from '../lib/api'
 
 interface MedicalRecord {
   id: number
@@ -10,7 +10,7 @@ interface MedicalRecord {
   doctor_id: number
   diagnosis: string
   treatment: string
-  notes: string
+  notes?: string
   visit_date: string
   created_at: string
   patient: {
@@ -22,7 +22,7 @@ interface MedicalRecord {
   doctor: {
     first_name: string
     last_name: string
-    specialization: string
+    specialization?: string
   }
 }
 
@@ -117,7 +117,9 @@ const MedicalRecordDetailPage = () => {
               <p className="text-gray-900">
                 Dr. {record.doctor.first_name} {record.doctor.last_name}
               </p>
-              <p className="text-sm text-gray-500">{record.doctor.specialization}</p>
+              {record.doctor.specialization && (
+                <p className="text-sm text-gray-500">{record.doctor.specialization}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Visit Date</label>

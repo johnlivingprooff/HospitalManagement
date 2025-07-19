@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { ArrowLeft, Pill, User, Stethoscope, Calendar, Clock } from 'lucide-react'
-import api from '../services/api'
+import api from '../lib/api'
 
 interface Prescription {
   id: number
@@ -13,7 +13,7 @@ interface Prescription {
   frequency: string
   duration: string
   quantity: number
-  instructions: string
+  instructions?: string
   status: string
   created_at: string
   patient: {
@@ -24,7 +24,7 @@ interface Prescription {
   doctor: {
     first_name: string
     last_name: string
-    specialization: string
+    specialization?: string
   }
 }
 
@@ -159,7 +159,9 @@ const PrescriptionDetailPage = () => {
                 <Stethoscope className="h-4 w-4 mr-2 text-gray-500" />
                 Dr. {prescription.doctor.first_name} {prescription.doctor.last_name}
               </p>
-              <p className="text-sm text-gray-500">{prescription.doctor.specialization}</p>
+              {prescription.doctor.specialization && (
+                <p className="text-sm text-gray-500">{prescription.doctor.specialization}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Prescribed Date</label>

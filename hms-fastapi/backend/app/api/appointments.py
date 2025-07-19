@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import and_, or_
 from typing import List, Optional
 from datetime import datetime, date
 from app.core.database import get_db
@@ -16,13 +16,19 @@ async def get_appointments(
     limit: int = Query(100, ge=1, le=1000),
     patient_id: Optional[int] = Query(None),
     doctor_id: Optional[int] = Query(None),
-    date: Optional[date] = Query(None),
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    date: Optional[date] = Query(None),  # Keep for backward compatibility
     status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_dependency)
 ):
     """Get all appointments with optional filters"""
-    query = db.query(Appointment)
+    query = db.query(Appointment).options(
+        joinedload(Appointment.patient),
+        joinedload(Appointment.doctor)
+    )
     
     # Apply filters
     if patient_id:
@@ -31,8 +37,19 @@ async def get_appointments(
     if doctor_id:
         query = query.filter(Appointment.doctor_id == doctor_id)
     
-    if date:
-        # Filter by date (regardless of time)
+    # Handle date filtering - support both single date and date range
+    if start_date and end_date:
+        # Date range filtering
+        start_of_start_date = datetime.combine(start_date, datetime.min.time())
+        end_of_end_date = datetime.combine(end_date, datetime.max.time())
+        query = query.filter(
+            and_(
+                Appointment.appointment_date >= start_of_start_date,
+                Appointment.appointment_date <= end_of_end_date
+            )
+        )
+    elif date:
+        # Single date filtering (backward compatibility)
         start_of_day = datetime.combine(date, datetime.min.time())
         end_of_day = datetime.combine(date, datetime.max.time())
         query = query.filter(
@@ -44,6 +61,20 @@ async def get_appointments(
     
     if status:
         query = query.filter(Appointment.status == status)
+    
+    # Search functionality
+    if search:
+        search_term = f"%{search}%"
+        query = query.join(Patient).join(User).filter(
+            or_(
+                Patient.first_name.ilike(search_term),
+                Patient.last_name.ilike(search_term),
+                User.first_name.ilike(search_term),
+                User.last_name.ilike(search_term),
+                Appointment.notes.ilike(search_term),
+                Appointment.appointment_type.ilike(search_term)
+            )
+        )
     
     # Apply pagination
     appointments = query.offset(skip).limit(limit).all()
@@ -57,7 +88,10 @@ async def get_appointment(
     current_user: User = Depends(get_current_user_dependency)
 ):
     """Get a specific appointment by ID"""
-    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    appointment = db.query(Appointment).options(
+        joinedload(Appointment.patient),
+        joinedload(Appointment.doctor)
+    ).filter(Appointment.id == appointment_id).first()
     
     if not appointment:
         raise HTTPException(
