@@ -4,7 +4,7 @@ Script to recreate the database tables for HMS FastAPI
 """
 
 from app.core.database import engine, Base
-from app.models import User, Patient, Appointment, MedicalRecord, Department
+from app.models import User, Patient, Appointment, MedicalRecord, Department, Ward, WardPatient
 from sqlalchemy import text
 
 def recreate_tables():
@@ -28,6 +28,8 @@ def recreate_tables():
     print("- patients") 
     print("- appointments")
     print("- medical_records")
+    print("- wards")
+    print("- ward_patients")
     print("- departments")
     
     # Show table structure for appointments

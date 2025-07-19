@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { AuthProvider } from './contexts/AuthContext'
+import { RoleProvider } from './contexts/RoleContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -18,6 +19,9 @@ import PharmacyPage from './pages/PharmacyPage'
 import PrescriptionDetailPage from './pages/PrescriptionDetailPage'
 import LabPage from './pages/LabPage'
 import LabTestDetailPage from './pages/LabTestDetailPage'
+import UsersPage from './pages/UsersPage'
+import WardsPage from './pages/WardsPage'
+import WardDetailPage from './pages/WardDetailPage'
 import Layout from './components/Layout'
 
 const queryClient = new QueryClient({
@@ -33,17 +37,18 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
+        <RoleProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
               <Route index element={<DashboardPage />} />
               <Route path="patients" element={<PatientsPage />} />
               <Route path="patients/:id" element={<PatientDetailPage />} />
@@ -58,12 +63,16 @@ function App() {
               <Route path="pharmacy/:id" element={<PrescriptionDetailPage />} />
               <Route path="lab" element={<LabPage />} />
               <Route path="lab/:id" element={<LabTestDetailPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="wards" element={<WardsPage />} />
+              <Route path="wards/:wardId" element={<WardDetailPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
           </Routes>
         </Router>
-      </AuthProvider>
-    </QueryClientProvider>
+      </RoleProvider>
+    </AuthProvider>
+  </QueryClientProvider>
   )
 }
 

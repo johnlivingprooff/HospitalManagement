@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useRole } from '../contexts/RoleContext'
 import { 
   Home, 
   Users, 
@@ -13,25 +14,33 @@ import {
   UserCheck,
   CreditCard,
   PillIcon,
-  TestTube
+  TestTube,
+  UserCog,
+  Building
 } from 'lucide-react'
 
 const Layout = () => {
   const { user, logout } = useAuth()
+  const { canAccess, getUserRole } = useRole()
   const location = useLocation()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  const navigation = [
-    { name: 'Dashboard', href: '/', icon: Home },
-    { name: 'Patients', href: '/patients', icon: Users },
-    { name: 'Appointments', href: '/appointments', icon: Calendar },
-    { name: 'Doctors', href: '/doctors', icon: UserCheck },
-    { name: 'Medical Records', href: '/medical-records', icon: FileText },
-    { name: 'Lab', href: '/lab', icon: TestTube },
-    { name: 'Pharmacy', href: '/pharmacy', icon: PillIcon },
-    { name: 'Bills', href: '/bills', icon: CreditCard },
-    { name: 'Settings', href: '/settings', icon: Settings },
+  const allNavigation = [
+    { name: 'Dashboard', href: '/', icon: Home, resource: 'dashboard' },
+    { name: 'Patients', href: '/patients', icon: Users, resource: 'patients' },
+    { name: 'Appointments', href: '/appointments', icon: Calendar, resource: 'appointments' },
+    { name: 'Doctors', href: '/doctors', icon: UserCheck, resource: 'doctors' },
+    { name: 'Wards', href: '/wards', icon: Building, resource: 'wards' },
+    { name: 'Medical Records', href: '/medical-records', icon: FileText, resource: 'medical_records' },
+    { name: 'Lab', href: '/lab', icon: TestTube, resource: 'lab' },
+    { name: 'Pharmacy', href: '/pharmacy', icon: PillIcon, resource: 'pharmacy' },
+    { name: 'Bills', href: '/bills', icon: CreditCard, resource: 'bills' },
+    { name: 'Users', href: '/users', icon: UserCog, resource: 'users' },
+    { name: 'Settings', href: '/settings', icon: Settings, resource: 'settings' },
   ]
+
+  // Filter navigation based on user role
+  const navigation = allNavigation.filter(item => canAccess(item.resource))
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -121,8 +130,13 @@ const Layout = () => {
               </h2>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-700">
-                Welcome, {user?.first_name} {user?.last_name}
+              <div className="text-sm">
+                <div className="text-gray-900 font-medium">
+                  Welcome, {user?.first_name} {user?.last_name}
+                </div>
+                <div className="text-gray-500 text-xs">
+                  {getUserRole().charAt(0).toUpperCase() + getUserRole().slice(1)}
+                </div>
               </div>
               <button
                 onClick={logout}

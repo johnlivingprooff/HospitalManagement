@@ -296,3 +296,68 @@ class PrescriptionResponse(PrescriptionBase):
     updated_at: datetime
     patient: Optional[PatientInfo] = None
     doctor: Optional[DoctorInfo] = None
+
+# Ward schemas
+class WardBase(BaseSchema):
+    name: str
+    type: str = Field(..., pattern="^(general|icu|emergency|surgery|maternity|pediatric)$")
+    capacity: int = Field(..., gt=0)
+    floor: int = Field(..., gt=0)
+    description: Optional[str] = None
+
+class WardCreate(WardBase):
+    pass
+
+class WardUpdate(BaseSchema):
+    name: Optional[str] = None
+    type: Optional[str] = Field(None, pattern="^(general|icu|emergency|surgery|maternity|pediatric)$")
+    capacity: Optional[int] = Field(None, gt=0)
+    floor: Optional[int] = Field(None, gt=0)
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class WardPatientInfo(BaseSchema):
+    id: int
+    bed_number: str
+    admission_date: datetime
+    discharge_date: Optional[datetime]
+    status: str
+    notes: Optional[str]
+    patient: PatientInfo
+    doctor: Optional[DoctorInfo] = None
+
+class WardResponse(WardBase):
+    id: int
+    current_occupancy: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    patients: Optional[List[WardPatientInfo]] = []
+
+# Ward Patient schemas
+class WardPatientBase(BaseSchema):
+    patient_id: int
+    doctor_id: Optional[int] = None
+    bed_number: str
+    status: str = Field(default="admitted", pattern="^(admitted|stable|critical|recovering|discharged)$")
+    notes: Optional[str] = None
+
+class WardPatientCreate(WardPatientBase):
+    pass
+
+class WardPatientUpdate(BaseSchema):
+    doctor_id: Optional[int] = None
+    bed_number: Optional[str] = None
+    status: Optional[str] = Field(None, pattern="^(admitted|stable|critical|recovering|discharged)$")
+    notes: Optional[str] = None
+    discharge_date: Optional[datetime] = None
+
+class WardPatientResponse(WardPatientBase):
+    id: int
+    ward_id: int
+    admission_date: datetime
+    discharge_date: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+    patient: PatientInfo
+    doctor: Optional[DoctorInfo] = None

@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime, timedelta, date
 from sqlalchemy.orm import Session
 from app.core.database import get_db, create_tables
-from app.models import User, Patient, Appointment, MedicalRecord, Bill, LabTest, Prescription
+from app.models import User, Patient, Appointment, MedicalRecord, Bill, LabTest, Prescription, Ward, WardPatient
 from app.core.security import get_password_hash
 
 def seed_data():
@@ -146,7 +146,61 @@ def seed_data():
             db.add(bill)
         
         db.commit()
+        
+        # Create sample wards
+        wards = []
+        ward_data = [
+            {"name": "General Ward A", "type": "general", "capacity": 20, "floor": 1, "description": "General patient ward with standard facilities"},
+            {"name": "ICU Ward", "type": "icu", "capacity": 10, "floor": 2, "description": "Intensive Care Unit with advanced monitoring"},
+            {"name": "Emergency Ward", "type": "emergency", "capacity": 15, "floor": 1, "description": "Emergency patient treatment and observation"},
+            {"name": "Pediatric Ward", "type": "pediatric", "capacity": 12, "floor": 3, "description": "Specialized care for children and infants"},
+            {"name": "Maternity Ward", "type": "maternity", "capacity": 8, "floor": 3, "description": "Maternity and obstetric care"},
+            {"name": "Surgery Ward", "type": "surgery", "capacity": 16, "floor": 2, "description": "Post-operative recovery and surgical care"},
+        ]
+        
+        for ward_info in ward_data:
+            ward = Ward(
+                name=ward_info["name"],
+                type=ward_info["type"],
+                capacity=ward_info["capacity"],
+                floor=ward_info["floor"],
+                description=ward_info["description"],
+                current_occupancy=0,
+                is_active=True
+            )
+            db.add(ward)
+            wards.append(ward)
+        
+        db.commit()
+        
+        # Refresh to get ward IDs
+        for ward in wards:
+            db.refresh(ward)
+        
+        # Create sample ward patient admissions (admit some patients to wards)
+        ward_patients = []
+        for i, patient in enumerate(patients[:8]):  # Admit first 8 patients
+            ward_index = i % len(wards)
+            doctor_index = i % len(doctors)
+            
+            ward_patient = WardPatient(
+                patient_id=patient.id,
+                ward_id=wards[ward_index].id,
+                doctor_id=doctors[doctor_index].id,
+                bed_number=f"{chr(65 + ward_index)}{i+1:02d}",  # A01, B01, etc.
+                admission_date=datetime.now() - timedelta(days=i*2),
+                status=["admitted", "stable", "critical", "recovering"][i % 4],
+                notes=f"Admitted for treatment {i+1}"
+            )
+            db.add(ward_patient)
+            ward_patients.append(ward_patient)
+            
+            # Update ward occupancy
+            wards[ward_index].current_occupancy += 1
+        
+        db.commit()
         print("Sample data seeded successfully!")
+        print(f"Created {len(wards)} wards with {len(ward_patients)} patient admissions")
         
     except Exception as e:
         db.rollback()

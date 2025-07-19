@@ -179,3 +179,40 @@ class Prescription(Base):
     # Relationships
     patient = relationship("Patient", foreign_keys=[patient_id])
     doctor = relationship("User", foreign_keys=[doctor_id])
+
+class Ward(Base):
+    __tablename__ = "wards"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False, unique=True)
+    type = Column(String, nullable=False)  # general, icu, emergency, surgery, maternity, pediatric
+    capacity = Column(Integer, nullable=False)
+    current_occupancy = Column(Integer, default=0)
+    floor = Column(Integer, nullable=False)
+    description = Column(Text)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patients = relationship("WardPatient", back_populates="ward")
+
+class WardPatient(Base):
+    __tablename__ = "ward_patients"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    ward_id = Column(Integer, ForeignKey("wards.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"))
+    bed_number = Column(String, nullable=False)
+    admission_date = Column(DateTime, server_default=func.now())
+    discharge_date = Column(DateTime)
+    status = Column(String, default="admitted")  # admitted, stable, critical, recovering, discharged
+    notes = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patient = relationship("Patient", foreign_keys=[patient_id])
+    ward = relationship("Ward", back_populates="patients", foreign_keys=[ward_id])
+    doctor = relationship("User", foreign_keys=[doctor_id])

@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.core.database import create_tables
 from app.core.search_init import initialize_search_optimization
 from app.services.cache_service import cache_service
-from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard
+from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard, wards
 
 # Create tables and initialize search optimization on startup
 @asynccontextmanager
@@ -57,6 +57,7 @@ app.include_router(bills.router, prefix="/api/bills", tags=["Bills"])
 app.include_router(medical_records.router, prefix="/api/medical-records", tags=["Medical Records"])
 app.include_router(lab_tests.router, prefix="/api/lab-tests", tags=["Lab Tests"])
 app.include_router(prescriptions.router, prefix="/api/prescriptions", tags=["Prescriptions"])
+app.include_router(wards.router, prefix="/api/wards", tags=["Wards"])
 
 # Health check endpoint
 @app.get("/")
