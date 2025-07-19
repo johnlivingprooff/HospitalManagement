@@ -57,7 +57,34 @@ HospitalManagement/
 
 ## 🚀 **Deployment Steps**
 
-### **1. Backend Deployment (Render)**
+### **🐳 Option 1: Docker Deployment (Recommended)**
+```bash
+# Quick Start
+1. Clone the repository
+2. Copy .env.example to .env and configure
+3. Run: ./deploy.sh (Linux/Mac) or deploy.bat (Windows)
+4. Access: http://localhost
+```
+
+**Docker Benefits:**
+- ✅ Complete environment isolation
+- ✅ One-command deployment
+- ✅ Database, backend, frontend all included
+- ✅ Automatic health checks
+- ✅ Easy scaling and updates
+- ✅ Works on any platform (Windows/Mac/Linux)
+
+**Environment Variables (.env):**
+```env
+DB_PASSWORD=hms123
+SECRET_KEY=your-secret-key-change-in-production
+DEBUG=false
+VITE_API_URL=http://localhost:8000
+```
+
+### **☁️ Option 2: Cloud Deployment**
+
+#### **1. Backend Deployment (Render)**
 ```bash
 # Repository Setup
 1. Push code to GitHub
@@ -75,7 +102,7 @@ DEBUG=false
 ALLOWED_ORIGINS=https://your-frontend-url.netlify.app
 ```
 
-### **2. Frontend Deployment (Netlify)**
+#### **2. Frontend Deployment (Netlify)**
 ```bash
 # Repository Setup
 1. Connect GitHub to Netlify
@@ -89,11 +116,38 @@ ALLOWED_ORIGINS=https://your-frontend-url.netlify.app
 VITE_API_URL=https://your-backend-url.render.com
 ```
 
-### **3. Database Setup**
+#### **3. Database Setup**
 ```bash
 # Option 1: Use existing local PostgreSQL
 # Option 2: Migrate to Render PostgreSQL
 # Option 3: Use Supabase (free tier)
+```
+
+### **🐳 Docker Commands**
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Update and restart
+docker-compose pull && docker-compose up -d
+
+# Backup database
+docker exec hms_database pg_dump -U postgres hms > backup.sql
+
+# Restore database
+docker exec -i hms_database psql -U postgres hms < backup.sql
+
+# Access backend container
+docker exec -it hms_backend bash
+
+# Access database directly
+docker exec -it hms_database psql -U postgres hms
 ```
 
 ## 📊 **Performance Expectations**

@@ -12,3 +12,5 @@ dependency-reduced-pom.xml
 .env
 node_modules/
 dist/
+*.bat
+*.exe
