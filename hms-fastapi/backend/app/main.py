@@ -6,6 +6,7 @@ import os
 from app.core.config import settings
 from app.core.database import create_tables
 from app.core.search_init import initialize_search_optimization
+from app.core.seed import initialize_database
 from app.services.cache_service import cache_service
 from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard, wards
 
@@ -15,6 +16,9 @@ async def lifespan(app: FastAPI):
     # Startup
     print("🚀 Starting HMS FastAPI application...")
     create_tables()
+    
+    # Initialize database with admin user and sample data
+    await initialize_database()
     
     # Initialize cache service
     await cache_service.initialize()

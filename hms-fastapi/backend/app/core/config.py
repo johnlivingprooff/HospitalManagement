@@ -20,7 +20,16 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    ALLOWED_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173", "https://hospitalmanagementmihr.netlify.app"]
+    ALLOWED_ORIGINS: list = []
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Handle ALLOWED_ORIGINS from environment variable
+        origins_env = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173,https://hospitalmanagementmihr.netlify.app")
+        if isinstance(origins_env, str):
+            self.ALLOWED_ORIGINS = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+        elif isinstance(origins_env, list):
+            self.ALLOWED_ORIGINS = origins_env
     
     # App
     APP_NAME: str = "HMS FastAPI"
