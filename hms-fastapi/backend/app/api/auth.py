@@ -11,8 +11,11 @@ from app.schemas import UserLogin, Token, UserResponse
 router = APIRouter()
 security = HTTPBearer()
 
-@router.post("/login", response_model=Token)
-async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
+@router.api_route("/login", methods=["POST", "OPTIONS"], response_model=Token)
+async def login(user_credentials: UserLogin = None, db: Session = Depends(get_db)):
+    if not user_credentials:
+        return {"detail": "Preflight OK"}
+    
     """Login user and return access token"""
     # Find user by email
     user = db.query(User).filter(User.email == user_credentials.email).first()
@@ -57,6 +60,12 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
 async def logout():
     """Logout user (client should remove token)"""
     return {"message": "Successfully logged out"}
+
+# CORs Test
+@router.api_route("/cors-test", methods=["POST", "OPTIONS"])
+async def cors_test():
+    return {"message": "CORS test success"}
+
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user(
