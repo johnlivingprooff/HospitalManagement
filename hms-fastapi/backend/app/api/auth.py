@@ -15,8 +15,8 @@ security = HTTPBearer()
 
 @router.api_route("/login", methods=["POST", "OPTIONS"], response_model=Token)
 async def login(request: Request, user_credentials: UserLogin = None, db: Session = Depends(get_db)):
-    if not user_credentials:
-        return {"detail": "Preflight OK"}
+    # if not user_credentials:
+    #     return {"detail": "Preflight OK"}
     if request.method == "OPTIONS":
         return JSONResponse(content={"message": "Preflight OK"}, status_code=200)
     
