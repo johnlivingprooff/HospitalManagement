@@ -46,6 +46,14 @@ app = FastAPI(
 # Debug: Print CORS origins
 print(f"🌐 CORS Allowed Origins: {settings.ALLOWED_ORIGINS}")
 
+# Middleware to log all requests
+@app.middleware("http")
+async def log_all_requests(request, call_next):
+    print(f"🛰️ {request.method} {request.url}")
+    response = await call_next(request)
+    return response
+
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
