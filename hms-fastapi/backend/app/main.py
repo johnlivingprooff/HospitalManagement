@@ -9,6 +9,7 @@ from app.core.search_init import initialize_search_optimization
 from app.core.seed import initialize_database
 from app.services.cache_service import cache_service
 from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard, wards
+from fastapi.responses import JSONResponse
 
 # Create tables and initialize search optimization on startup
 @asynccontextmanager
@@ -53,6 +54,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.options("/{full_path:path}")
+async def preflight_handler(full_path: str):
+    return JSONResponse(
+        content={"message": "CORS preflight handled"},
+        status_code=200
+    )
+
 
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
