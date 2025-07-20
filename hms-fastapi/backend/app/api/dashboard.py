@@ -10,6 +10,11 @@ from typing import List, Dict, Any
 
 router = APIRouter()
 
+@router.get("/health")
+def dashboard_health():
+    """Simple health check for dashboard API"""
+    return {"status": "healthy", "service": "dashboard"}
+
 class DashboardStats(BaseSchema):
     total_patients: int
     total_active_patients: int
@@ -36,6 +41,7 @@ class DashboardData(BaseSchema):
     appointment_status_distribution: Dict[str, int]
 
 @router.get("/", response_model=DashboardData)
+@router.get("", response_model=DashboardData)  # Handle both /api/dashboard and /api/dashboard/
 def get_dashboard_data(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_dependency)

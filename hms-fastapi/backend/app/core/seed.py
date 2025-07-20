@@ -2,10 +2,58 @@
 Database seeding utilities
 """
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError, IntegrityError
 from app.core.database import get_db
 from app.models import User
 from app.core.security import get_password_hash
 import asyncio
+import time
+
+async def wait_for_database(max_retries: int = 30, retry_interval: int = 2):
+    """
+    Wait for database to become available
+    """
+    for attempt in range(max_retries):
+        try:
+            print(f"🔄 Attempting database connection (attempt {attempt + 1}/{max_retries})...")
+            db_gen = get_db()
+            db: Session = next(db_gen)
+            
+            # Test the connection
+            db.execute("SELECT 1")
+            db.close()
+            
+            print("✅ Database connection successful!")
+            return True
+            
+        except OperationalError as e:
+            if "could not translate host name" in str(e):
+                print(f"❌ DNS resolution failed: {str(e)}")
+                print("💡 Possible issues:")
+                print("   - Internet connectivity problem")
+                print("   - Render database not ready yet")
+                print("   - Incorrect DATABASE_URL")
+            elif "could not connect to server" in str(e):
+                print(f"❌ Connection failed: {str(e)}")
+                print("💡 Database server might still be starting up...")
+            else:
+                print(f"❌ Database error: {str(e)}")
+            
+            if attempt < max_retries - 1:
+                print(f"⏳ Retrying in {retry_interval} seconds...")
+                time.sleep(retry_interval)
+            else:
+                print("❌ Max retries reached. Database unavailable.")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Unexpected error: {str(e)}")
+            if attempt < max_retries - 1:
+                time.sleep(retry_interval)
+            else:
+                return False
+    
+    return False
 
 async def seed_admin_user():
     """
@@ -13,6 +61,11 @@ async def seed_admin_user():
     This ensures the app is accessible immediately after deployment
     """
     try:
+        # Wait for database to be available
+        if not await wait_for_database():
+            print("❌ Cannot connect to database. Skipping admin user seeding.")
+            return False
+        
         # Get database session
         db_gen = get_db()
         db: Session = next(db_gen)
@@ -48,12 +101,33 @@ async def seed_admin_user():
             
         # Close database session
         db.close()
+        return True
+        
+    except IntegrityError as e:
+        print(f"⚠️  Admin user might already exist: {str(e)}")
+        if 'db' in locals():
+            db.rollback()
+            db.close()
+        return True  # Not a critical error
+        
+    except OperationalError as e:
+        print(f"❌ Database connection error during seeding: {str(e)}")
+        print("💡 Troubleshooting tips:")
+        print("   1. Check if your internet connection is working")
+        print("   2. Verify DATABASE_URL in .env file")
+        print("   3. Ensure Render database is running")
+        print("   4. Try running locally with local database first")
+        if 'db' in locals():
+            db.rollback()
+            db.close()
+        return False
         
     except Exception as e:
         print(f"❌ Error seeding admin user: {str(e)}")
         if 'db' in locals():
             db.rollback()
             db.close()
+        return False
 
 async def seed_sample_data():
     """
@@ -123,11 +197,22 @@ async def initialize_database():
     Initialize database with essential data
     """
     print("🗄️  Initializing database...")
-    await seed_admin_user()
     
-    # Only seed sample data in development
+    # Try to seed admin user
+    admin_success = await seed_admin_user()
+    
+    if not admin_success:
+        print("⚠️  Database initialization failed - continuing without seeding")
+        print("💡 You can:")
+        print("   1. Fix the database connection and restart the app")
+        print("   2. Use local database for development")
+        print("   3. Manually create admin user later")
+        return False
+    
+    # Only seed sample data in development and if admin seeding succeeded
     from app.core.config import settings
-    if settings.DEBUG:
+    if settings.DEBUG and admin_success:
         await seed_sample_data()
     
     print("✅ Database initialization complete!")
+    return True
