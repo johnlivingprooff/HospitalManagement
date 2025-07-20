@@ -3,6 +3,7 @@ Database seeding utilities
 """
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, IntegrityError
+from sqlalchemy import text
 from app.core.database import get_db
 from app.models import User
 from app.core.security import get_password_hash
@@ -19,8 +20,8 @@ async def wait_for_database(max_retries: int = 30, retry_interval: int = 2):
             db_gen = get_db()
             db: Session = next(db_gen)
             
-            # Test the connection
-            db.execute("SELECT 1")
+            # Test the connection - Fixed: Use text() wrapper for SQLAlchemy 2.0+
+            db.execute(text("SELECT 1"))
             db.close()
             
             print("✅ Database connection successful!")

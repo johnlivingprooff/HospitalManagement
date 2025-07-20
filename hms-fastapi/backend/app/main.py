@@ -42,11 +42,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Debug: Print CORS origins
+print(f"🌐 CORS Allowed Origins: {settings.ALLOWED_ORIGINS}")
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "https://hospitalmanagementmihr.netlify.app"],
-    # allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=settings.ALLOWED_ORIGINS if settings.ALLOWED_ORIGINS else ["*"],  # Fallback to allow all if not set
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
