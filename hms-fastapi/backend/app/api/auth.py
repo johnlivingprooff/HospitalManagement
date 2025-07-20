@@ -7,14 +7,18 @@ from app.core.security import verify_password, create_access_token, verify_token
 from app.core.config import settings
 from app.models import User
 from app.schemas import UserLogin, Token, UserResponse
+from fastapi.responses import JSONResponse
+from fastapi import Request
 
 router = APIRouter()
 security = HTTPBearer()
 
 @router.api_route("/login", methods=["POST", "OPTIONS"], response_model=Token)
-async def login(user_credentials: UserLogin = None, db: Session = Depends(get_db)):
+async def login(request: Request, user_credentials: UserLogin = None, db: Session = Depends(get_db)):
     if not user_credentials:
         return {"detail": "Preflight OK"}
+    if request.method == "OPTIONS":
+        return JSONResponse(content={"message": "Preflight OK"}, status_code=200)
     
     """Login user and return access token"""
     # Find user by email
