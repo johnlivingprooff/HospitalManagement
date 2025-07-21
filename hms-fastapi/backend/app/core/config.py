@@ -38,15 +38,16 @@ class Settings(BaseSettings):
     
     # CORS
     ALLOWED_ORIGINS: list = []
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        origins_env = os.getenv("ALLOWED_ORIGINS", "")
+        origins_env = os.getenv("ALLOWED_ORIGINS")
         if origins_env:
             try:
                 self.ALLOWED_ORIGINS = json.loads(origins_env)
             except json.JSONDecodeError:
-                self.ALLOWED_ORIGINS = [origin.strip() for origin in origins_env.split(",")]
+                print("⚠️ Failed to parse ALLOWED_ORIGINS from .env. Falling back to default.")
+                self.ALLOWED_ORIGINS = []
     
     # App
     APP_NAME: str = "HMS FastAPI"
