@@ -4,7 +4,12 @@ from sqlalchemy.orm import sessionmaker, Session
 from app.core.config import settings
 
 # Create SQLAlchemy engine
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,  # Verify connections before use
+        pool_recycle=3600,   # Recycle connections every hour
+        pool_timeout=30      # Timeout after 30 seconds
+    )
 
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
