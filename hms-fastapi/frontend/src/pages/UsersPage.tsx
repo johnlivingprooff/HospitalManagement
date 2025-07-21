@@ -18,7 +18,8 @@ import SearchInput from '../components/SearchInput'
 import { useRole } from '../contexts/RoleContext'
 import ProtectedPage from '../components/ProtectedPage'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
-// import { LoadingUsersPage } from '../components/loading/SystemLoadingStates'
+import { LoadingUsersPage } from '../components/loading/SystemLoadingStates'
+import Toast from '../components/Toast'
 
 interface User {
   id: number
@@ -56,6 +57,8 @@ const UsersPage = () => {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
 //   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -245,18 +248,22 @@ const UsersPage = () => {
   ) || []
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-      </div>
-    )
+    return <LoadingUsersPage />
   }
 
-  if (error) {
+  if (error && !showToast) {
+    setShowToast(true)
+    setToastMessage('Error loading users. Please try again.')
+  }
+
+  // Show toast notification if error occurs
+  if (showToast) {
     return (
-      <div className="p-4 border border-red-200 rounded-md bg-red-50">
-        <p className="text-red-800">Error loading users. Please try again.</p>
-      </div>
+      <Toast
+        message={toastMessage}
+        type="error"
+        onClose={() => setShowToast(false)}
+      />
     )
   }
 

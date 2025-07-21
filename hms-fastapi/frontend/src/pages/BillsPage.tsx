@@ -5,8 +5,10 @@ import { CreditCard, DollarSign, FileText, Plus } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
 import SearchInput from '../components/SearchInput'
-// import { LoadingBillsOverview } from '../components/loading/BillLoadingStates'
+import { LoadingBillsOverview } from '../components/loading/BillLoadingStates'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
+import Toast from '../components/Toast'
+
 
 interface Bill {
   id: number
@@ -31,6 +33,8 @@ const BillsPage = () => {
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -191,20 +195,25 @@ const BillsPage = () => {
   ) || []
 
   if (isLoading) {
+    return <LoadingBillsOverview />
+  }
+
+  if (error && !showToast) {
+    setShowToast(true)
+    setToastMessage('Error loading users. Please try again.')
+  }
+
+  // Show toast notification if error occurs
+  if (showToast) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-32 h-32 border-b-2 rounded-full animate-spin border-primary-600"></div>
-      </div>
+      <Toast
+        message={toastMessage}
+        type="error"
+        onClose={() => setShowToast(false)}
+      />
     )
   }
 
-  if (error) {
-    return (
-      <div className="p-4 border border-red-200 rounded-md bg-red-50">
-        <p className="text-red-800">Error loading bills. Please try again.</p>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">

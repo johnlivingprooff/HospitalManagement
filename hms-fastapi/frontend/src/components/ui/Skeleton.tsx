@@ -47,7 +47,7 @@ export function Skeleton({
     none: ""
   }
 
-  const baseStyles = "bg-gray-200 dark:bg-gray-700"
+  const baseStyles = "bg-gray-200/15 dark:bg-gray-700/15"
   
   if (repeat > 1) {
     return (
