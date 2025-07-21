@@ -13,6 +13,7 @@ from app.api.auth import get_current_user_dependency
 router = APIRouter()
 
 @router.get("/", response_model=List[LabTestResponse])
+@router.get("", response_model=List[LabTestResponse])
 def get_lab_tests(
     skip: int = 0,
     limit: int = 100,

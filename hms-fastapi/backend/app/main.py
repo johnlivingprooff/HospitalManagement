@@ -43,6 +43,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS if settings.ALLOWED_ORIGINS else ["*"],  # Fallback to allow all if not set
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Debug: Print CORS origins
 print(f"🌐 CORS Allowed Origins: {settings.ALLOWED_ORIGINS}")
 
@@ -53,15 +62,6 @@ async def log_all_requests(request, call_next):
     response = await call_next(request)
     return response
 
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS if settings.ALLOWED_ORIGINS else ["*"],  # Fallback to allow all if not set
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.options("/{full_path:path}")
 async def preflight_handler(full_path: str):

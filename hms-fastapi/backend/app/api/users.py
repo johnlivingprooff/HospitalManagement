@@ -12,24 +12,32 @@ router = APIRouter()
 async def get_users(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of records to return"),
-    role: Optional[str] = Query(None, description="Filter by user role"),
+    role: Optional[str] = Query(None, description="Filter by user role (e.g., 'doctor', 'nurse', etc.)"),
     search: Optional[str] = Query(None, description="Search by name or email"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_dependency)
 ):
-    """Get all users with optional filtering"""
+    """
+    Get all users with optional filtering
+    - **role**: Filter users by role (doctor, nurse, admin, etc.)
+    - **search**: Search users by name or email
+    - **skip/limit**: Pagination parameters
+    """
     query = db.query(User)
     
-    # Filter by role if provided
+    # Filter by role if provided (case-insensitive)
     if role:
-        query = query.filter(User.role == role)
+        query = query.filter(User.role.ilike(role))
     
     # Search by name or email if provided
     if search:
+        search_term = f"%{search}%"
         query = query.filter(
-            User.first_name.ilike(f"%{search}%") |
-            User.last_name.ilike(f"%{search}%") |
-            User.email.ilike(f"%{search}%")
+            or_(
+                User.first_name.ilike(search_term),
+                User.last_name.ilike(search_term),
+                User.email.ilike(search_term)
+            )
         )
     
     users = query.offset(skip).limit(limit).all()

@@ -13,6 +13,7 @@ from app.api.auth import get_current_user_dependency
 router = APIRouter()
 
 @router.get("/", response_model=List[MedicalRecordResponse])
+@router.get("", response_model=List[MedicalRecordResponse])
 def get_medical_records(
     skip: int = 0,
     limit: int = 100,
