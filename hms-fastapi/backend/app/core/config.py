@@ -2,6 +2,7 @@ import os
 import secrets
 import warnings
 from dotenv import load_dotenv
+import json
 from pydantic_settings import BaseSettings
 
 load_dotenv()
@@ -40,12 +41,12 @@ class Settings(BaseSettings):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Handle ALLOWED_ORIGINS from environment variable
-        origins_env = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173,https://hospitalmanagementmihr.netlify.app")
-        if isinstance(origins_env, str):
-            self.ALLOWED_ORIGINS = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
-        elif isinstance(origins_env, list):
-            self.ALLOWED_ORIGINS = origins_env
+        origins_env = os.getenv("ALLOWED_ORIGINS", "")
+        if origins_env:
+            try:
+                self.ALLOWED_ORIGINS = json.loads(origins_env)
+            except json.JSONDecodeError:
+                self.ALLOWED_ORIGINS = [origin.strip() for origin in origins_env.split(",")]
     
     # App
     APP_NAME: str = "HMS FastAPI"
