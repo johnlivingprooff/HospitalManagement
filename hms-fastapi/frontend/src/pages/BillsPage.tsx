@@ -200,7 +200,7 @@ const BillsPage = () => {
 
   if (error && !showToast) {
     setShowToast(true)
-    setToastMessage('Error loading users. Please try again.')
+    setToastMessage('Error loading bills. Please try again.')
   }
 
   // Show toast notification if error occurs
