@@ -1,13 +1,13 @@
-# Render Deployment Configuration
+# # Render Deployment Configuration
 
-# Build Command
-pip install -r requirements.txt
+# # Build Command
+# pip install -r requirements.txt
 
-# Start Command
-uvicorn main:app --host 0.0.0.0 --port $PORT
+# # Start Command
+# # uvicorn main:app --host 0.0.0.0 --port $PORT
 
-# Environment Variables (set in Render dashboard)
-DATABASE_URL=postgresql://user:password@host:5432/database
-SECRET_KEY=your-super-secret-key-change-this-in-production
-DEBUG=false
-ALLOWED_ORIGINS=https://your-frontend-url.netlify.app,https://your-frontend-url.vercel.app
+# # Environment Variables (set in Render dashboard)
+# # DATABASE_URL=postgresql://user:password@host:5432/database
+# # SECRET_KEY=your-super-secret-key-change-this-in-production
+# DEBUG=false
+# ALLOWED_ORIGINS=https://your-frontend-url.netlify.app,https://your-frontend-url.vercel.app
