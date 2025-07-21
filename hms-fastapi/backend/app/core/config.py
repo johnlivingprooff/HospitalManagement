@@ -32,8 +32,13 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # CORS (Pydantic will parse JSON directly from env)
-    ALLOWED_ORIGINS: List[str] = []
+    # CORS 
+    ALLOWED_ORIGINS: list = []
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        origins_env = os.getenv("ALLOWED_ORIGINS", "")
+        self.ALLOWED_ORIGINS = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
 
     # App
     APP_NAME: str = "HMS FastAPI"
