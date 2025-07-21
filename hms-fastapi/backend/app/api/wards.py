@@ -105,6 +105,7 @@ async def get_ward(
     return ward
 
 @router.post("/", response_model=WardResponse)
+@router.post("", response_model=WardResponse)
 async def create_ward(
     ward_data: WardCreate,
     db: Session = Depends(get_db),

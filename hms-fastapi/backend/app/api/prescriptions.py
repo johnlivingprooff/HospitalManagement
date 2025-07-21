@@ -63,6 +63,7 @@ def get_prescription(
     return prescription
 
 @router.post("/", response_model=PrescriptionResponse)
+@router.post("", response_model=PrescriptionResponse)
 def create_prescription(
     prescription: PrescriptionCreate,
     db: Session = Depends(get_db),

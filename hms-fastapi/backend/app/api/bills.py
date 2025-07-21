@@ -10,6 +10,7 @@ from app.api.auth import get_current_user_dependency
 router = APIRouter()
 
 @router.get("/", response_model=List[BillResponse])
+@router.get("", response_model=List[BillResponse])
 async def get_bills(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of records to return"),
@@ -45,6 +46,7 @@ async def get_bill(
     return BillResponse.from_orm(bill)
 
 @router.post("/", response_model=BillResponse)
+@router.post("", response_model=BillResponse)
 async def create_bill(
     bill_data: BillCreate,
     db: Session = Depends(get_db),

@@ -11,6 +11,7 @@ from app.api.auth import get_current_user_dependency
 router = APIRouter()
 
 @router.get("/", response_model=List[AppointmentResponse])
+@router.get("", response_model=List[AppointmentResponse])
 async def get_appointments(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -102,6 +103,7 @@ async def get_appointment(
     return AppointmentResponse.from_orm(appointment)
 
 @router.post("/", response_model=AppointmentResponse)
+@router.post("", response_model=AppointmentResponse)
 async def create_appointment(
     appointment_data: AppointmentCreate,
     db: Session = Depends(get_db),

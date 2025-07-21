@@ -63,6 +63,7 @@ def get_medical_record(
     return medical_record
 
 @router.post("/", response_model=MedicalRecordResponse)
+@router.post("", response_model=MedicalRecordResponse)
 def create_medical_record(
     medical_record: MedicalRecordCreate,
     db: Session = Depends(get_db),

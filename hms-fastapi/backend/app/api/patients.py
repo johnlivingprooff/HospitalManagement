@@ -10,6 +10,7 @@ from app.api.auth import get_current_user_dependency
 router = APIRouter()
 
 @router.get("/", response_model=List[PatientResponse])
+@router.get("", response_model=List[PatientResponse])
 async def get_patients(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -59,6 +60,7 @@ async def get_patient(
     return PatientResponse.from_orm(patient)
 
 @router.post("/", response_model=PatientResponse)
+@router.post("", response_model=PatientResponse)
 async def create_patient(
     patient_data: PatientCreate,
     db: Session = Depends(get_db),
