@@ -5,6 +5,7 @@ import { Calendar, Plus, Clock, User, FileText } from 'lucide-react'
 import { Appointment } from '../types'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import { LoadingAppointmentsPage } from '../components/loading/AppointmentLoadingStates'
 
 const AppointmentsPage = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
@@ -224,12 +225,8 @@ const AppointmentsPage = () => {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="w-12 h-12 border-b-2 rounded-full animate-spin border-primary-600"></div>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingAppointmentsPage />
   }
 
   if (error) {
@@ -524,12 +521,6 @@ const AppointmentsPage = () => {
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-purple-600 border border-transparent rounded-lg shadow-sm hover:bg-purple-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={addAppointmentMutation.isLoading}
             >
-              {addAppointmentMutation.isLoading && (
-                <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
               {addAppointmentMutation.isLoading ? 'Scheduling...' : 'Schedule Appointment'}
             </button>
           </div>
@@ -674,12 +665,6 @@ const AppointmentsPage = () => {
                 className="inline-flex items-center px-6 py-2 text-sm font-medium text-white transition-all duration-200 bg-purple-600 border border-transparent rounded-lg shadow-sm hover:bg-purple-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={updateAppointmentMutation.isLoading}
               >
-                {updateAppointmentMutation.isLoading && (
-                  <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                )}
                 {updateAppointmentMutation.isLoading ? 'Updating...' : 'Update Appointment'}
               </button>
             </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import { PillIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react'
+import { LoadingPharmacyPage } from '../components/loading/PharmacyLoadingStates'
 import api from '../lib/api'
 import Modal from '../components/Modal'
 import SearchInput from '../components/SearchInput'
@@ -198,20 +199,8 @@ const PharmacyPage = () => {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-32 h-32 border-b-2 border-purple-600 rounded-full animate-spin"></div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 border border-red-200 rounded-md bg-red-50">
-        <p className="text-red-800">Failed to load prescriptions</p>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingPharmacyPage />
   }
 
   return (
@@ -235,7 +224,7 @@ const PharmacyPage = () => {
           </svg>
           <span>New Prescription</span>
           {addPrescriptionMutation.isLoading && (
-            <div className="w-4 h-4 ml-1 border-2 border-white rounded-full animate-spin border-t-transparent"></div>
+            <span className="ml-1">Creating...</span>
           )}
         </button>
       </div>
@@ -587,9 +576,6 @@ const PharmacyPage = () => {
               className="flex items-center px-4 py-2 space-x-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={addPrescriptionMutation.isLoading}
             >
-              {addPrescriptionMutation.isLoading && (
-                <div className="w-4 h-4 border-2 border-white rounded-full animate-spin border-t-transparent"></div>
-              )}
               <span>{addPrescriptionMutation.isLoading ? 'Creating...' : 'Create Prescription'}</span>
             </button>
           </div>

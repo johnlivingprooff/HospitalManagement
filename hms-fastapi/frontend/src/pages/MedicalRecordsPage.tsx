@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { FileTextIcon, CalendarIcon, UserIcon, Plus, Download } from 'lucide-react'
+import { FileText, Calendar, User, Plus, Download } from 'lucide-react'
 import jsPDF from 'jspdf'
 import api from '../lib/api'
 import Modal from '../components/Modal'
 import SearchInput from '../components/SearchInput'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
 import { MedicalRecord } from '../types'
+import { LoadingMedicalRecords } from '../components/loading/SystemLoadingStates'
+// import { LoadingMedicalRecordList } from '../components/loading/FeatureLoadingStates'
 
 const MedicalRecordsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -66,7 +68,7 @@ const MedicalRecordsPage = () => {
     return response.data
   })
 
-  const addRecordMutation = useMutation(
+  const addMedicalRecordMutation = useMutation(
     (recordData: typeof recordForm) => {
       const payload = {
         ...recordData,
@@ -100,7 +102,7 @@ const MedicalRecordsPage = () => {
     }
   )
 
-  const editRecordMutation = useMutation(
+  const editMedicalRecordMutation = useMutation(
     (recordData: { id: number } & typeof editRecordForm) => {
       const payload = {
         patient_id: parseInt(recordData.patient_id),
@@ -143,13 +145,13 @@ const MedicalRecordsPage = () => {
 
   const handleAddRecord = async (e: React.FormEvent) => {
     e.preventDefault()
-    addRecordMutation.mutate(recordForm)
+            addMedicalRecordMutation.mutate(recordForm)
   }
 
   const handleEditRecord = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingRecord) return
-    editRecordMutation.mutate({ ...editRecordForm, id: editingRecord.id })
+    editMedicalRecordMutation.mutate({ ...editRecordForm, id: editingRecord.id })
   }
 
   const handleEditClick = (record: MedicalRecord) => {
@@ -307,20 +309,8 @@ const MedicalRecordsPage = () => {
     ]
   )
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-32 h-32 border-b-2 rounded-full animate-spin border-primary-600"></div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 border border-red-200 rounded-md bg-red-50">
-        <p className="text-red-800">Error loading medical records. Please try again.</p>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingMedicalRecords />
   }
 
   return (
@@ -377,7 +367,7 @@ const MedicalRecordsPage = () => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <FileTextIcon className="w-8 h-8 text-blue-600" />
+            <FileText className="w-8 h-8 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Records</p>
               <p className="text-2xl font-bold text-gray-900">{records?.length || 0}</p>
@@ -387,7 +377,7 @@ const MedicalRecordsPage = () => {
         
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <UserIcon className="w-8 h-8 text-green-600" />
+            <User className="w-8 h-8 text-green-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Consultations</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -399,7 +389,7 @@ const MedicalRecordsPage = () => {
         
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <FileTextIcon className="w-8 h-8 text-purple-600" />
+            <FileText className="w-8 h-8 text-purple-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Lab Results</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -411,7 +401,7 @@ const MedicalRecordsPage = () => {
         
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <CalendarIcon className="w-8 h-8 text-orange-600" />
+            <Calendar className="w-8 h-8 text-orange-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">This Month</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -681,15 +671,15 @@ const MedicalRecordsPage = () => {
             <button 
               type="submit" 
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-indigo-600 border border-transparent rounded-lg shadow-sm hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={editRecordMutation.isLoading}
+              disabled={editMedicalRecordMutation.isLoading}
             >
-              {editRecordMutation.isLoading && (
+              {editMedicalRecordMutation.isLoading && (
                 <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               )}
-              {editRecordMutation.isLoading ? 'Updating...' : 'Update Record'}
+              {editMedicalRecordMutation.isLoading ? 'Updating...' : 'Update Record'}
             </button>
           </div>
         </form>
@@ -868,15 +858,15 @@ const MedicalRecordsPage = () => {
             <button 
               type="submit" 
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-indigo-600 border border-transparent rounded-lg shadow-sm hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={addRecordMutation.isLoading}
+              disabled={addMedicalRecordMutation.isLoading}
             >
-              {addRecordMutation.isLoading && (
+              {addMedicalRecordMutation.isLoading && (
                 <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               )}
-              {addRecordMutation.isLoading ? 'Creating...' : 'Create Record'}
+              {addMedicalRecordMutation.isLoading ? 'Creating...' : 'Create Record'}
             </button>
           </div>
         </form>

@@ -5,6 +5,7 @@ import { ArrowLeft, Pill, User, Stethoscope, Calendar, Download, Edit } from 'lu
 import jsPDF from 'jspdf'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import { LoadingPrescriptionDetail } from '../components/loading/DetailLoadingStates'
 
 interface Prescription {
   id: number
@@ -263,12 +264,8 @@ const PrescriptionDetailPage = () => {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-b-2 border-purple-600 rounded-full animate-spin"></div>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingPrescriptionDetail />
   }
 
   if (error || !prescription) {

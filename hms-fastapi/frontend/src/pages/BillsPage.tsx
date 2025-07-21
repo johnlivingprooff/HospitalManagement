@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { CreditCardIcon, DollarSignIcon, FileTextIcon, Plus } from 'lucide-react'
+import { CreditCard, DollarSign, FileText, Plus } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
 import SearchInput from '../components/SearchInput'
+// import { LoadingBillsOverview } from '../components/loading/BillLoadingStates'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
 
 interface Bill {
@@ -249,7 +250,7 @@ const BillsPage = () => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <DollarSignIcon className="w-8 h-8 text-green-600" />
+            <DollarSign className="w-8 h-8 text-green-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -261,7 +262,7 @@ const BillsPage = () => {
         
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <CreditCardIcon className="w-8 h-8 text-blue-600" />
+            <CreditCard className="w-8 h-8 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Outstanding</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -273,7 +274,7 @@ const BillsPage = () => {
         
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <FileTextIcon className="w-8 h-8 text-yellow-600" />
+            <FileText className="w-8 h-8 text-yellow-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Pending Bills</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -285,7 +286,7 @@ const BillsPage = () => {
         
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <DollarSignIcon className="w-8 h-8 text-red-600" />
+            <DollarSign className="w-8 h-8 text-red-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Overdue</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -476,12 +477,6 @@ const BillsPage = () => {
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={addBillMutation.isLoading}
             >
-              {addBillMutation.isLoading && (
-                <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
               {addBillMutation.isLoading ? 'Creating...' : 'Create Bill'}
             </button>
           </div>
@@ -496,7 +491,7 @@ const BillsPage = () => {
       >
         <form onSubmit={handlePayment} className="space-y-4">
           {selectedBill && (
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 rounded-lg bg-gray-50">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">Total Amount:</span>
@@ -578,12 +573,6 @@ const BillsPage = () => {
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-green-600 border border-transparent rounded-lg shadow-sm hover:bg-green-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={paymentMutation.isLoading}
             >
-              {paymentMutation.isLoading && (
-                <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
               {paymentMutation.isLoading ? 'Processing...' : 'Process Payment'}
             </button>
           </div>

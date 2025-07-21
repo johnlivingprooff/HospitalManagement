@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import { LoadingWardOverview } from '../components/loading/FeatureLoadingStates'
 import SearchInput from '../components/SearchInput'
 import ProtectedPage from '../components/ProtectedPage'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
@@ -324,19 +325,11 @@ const WardsPage = () => {
   ) || []
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-      </div>
-    )
+    return <LoadingWardOverview />
   }
 
   if (error) {
-    return (
-      <div className="p-4 border border-red-200 rounded-md bg-red-50">
-        <p className="text-red-800">Error loading wards. Please try again.</p>
-      </div>
-    )
+    return <LoadingWardOverview />
   }
 
   return (

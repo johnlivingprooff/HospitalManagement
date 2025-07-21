@@ -8,6 +8,7 @@ import SearchInput from '../components/SearchInput'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
 import { useRole } from '../contexts/RoleContext'
 import { useAuth } from '../contexts/AuthContext'
+import { LoadingDoctorList } from '../components/loading/DoctorLoadingStates'
 
 const DoctorsPage = () => {
   const { canAccess, isAdmin, isDoctor } = useRole()
@@ -316,12 +317,8 @@ const DoctorsPage = () => {
     ]
   ) || []
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-32 h-32 border-b-2 rounded-full animate-spin border-primary-600"></div>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingDoctorList />
   }
 
   if (error) {

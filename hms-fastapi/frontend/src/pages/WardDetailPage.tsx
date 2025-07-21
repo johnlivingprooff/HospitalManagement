@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import jsPDF from 'jspdf'
 import api from '../lib/api'
+import { LoadingWardDetail } from '../components/loading/FeatureLoadingStates'
 import Modal from '../components/Modal'
 import ProtectedPage from '../components/ProtectedPage'
 
@@ -331,12 +332,8 @@ const WardDetailPage = () => {
     doc.save(`ward-${ward.name.replace(/\s+/g, '-').toLowerCase()}-report.pdf`)
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingWardDetail />
   }
 
   if (error || !ward) {

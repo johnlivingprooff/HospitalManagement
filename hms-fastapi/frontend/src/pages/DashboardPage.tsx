@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Users, Calendar, FileText, Activity, TestTube, Pill } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import { LoadingDashboardData } from '../components/loading/LoadingStates'
 
 interface DashboardStats {
   total_patients: number
@@ -188,14 +189,12 @@ const DashboardPage = () => {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-32 h-32 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-      </div>
-    )
+    return <LoadingDashboardData />
   }
 
+  // Show skeleton UI even if there's an error or no data
   if (error || !dashboardData) {
+    return <LoadingDashboardData />
     return (
       <div className="p-4 border border-red-200 rounded-md bg-red-50">
         <p className="text-red-800">{error || 'Failed to load dashboard'}</p>

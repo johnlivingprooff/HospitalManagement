@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { TestTubeIcon, ClockIcon, CheckCircleIcon, AlertCircleIcon, Plus } from 'lucide-react'
+import { TestTube, ClockIcon, CheckCircleIcon, AlertCircleIcon, Plus } from 'lucide-react'
 import api from '../lib/api'
 import Modal from '../components/Modal'
 import SearchInput from '../components/SearchInput'
 import { useClientSearch } from '../hooks/useOptimizedSearch'
+import { LoadingLabResults } from '../components/loading/FeatureLoadingStates'
 
 interface LabTest {
   id: number
@@ -117,7 +118,7 @@ const LabPage = () => {
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending': return <ClockIcon className="w-4 h-4" />
-      case 'in_progress': return <TestTubeIcon className="w-4 h-4" />
+      case 'in_progress': return <TestTube className="w-4 h-4" />
       case 'completed': return <CheckCircleIcon className="w-4 h-4" />
       case 'abnormal': return <AlertCircleIcon className="w-4 h-4" />
       default: return <ClockIcon className="w-4 h-4" />
@@ -158,20 +159,8 @@ const LabPage = () => {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-32 h-32 border-b-2 rounded-full animate-spin border-primary-600"></div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 border border-red-200 rounded-md bg-red-50">
-        <p className="text-red-800">Error loading lab tests. Please try again.</p>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingLabResults />
   }
 
   return (
@@ -231,7 +220,7 @@ const LabPage = () => {
         
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="flex items-center">
-            <TestTubeIcon className="w-8 h-8 text-blue-600" />
+            <TestTube className="w-8 h-8 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">In Progress</p>
               <p className="text-2xl font-bold text-gray-900">

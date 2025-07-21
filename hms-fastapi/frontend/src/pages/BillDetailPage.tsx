@@ -5,6 +5,7 @@ import { ArrowLeft, FileText, DollarSign, Calendar, User, CreditCard, Download }
 import jsPDF from 'jspdf'
 import api from '../lib/api'
 import Modal from '../components/Modal'
+import { LoadingBillDetail } from '../components/loading/BillLoadingStates'
 
 interface Bill {
   id: number
@@ -210,12 +211,8 @@ const BillDetailPage = () => {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingBillDetail />
   }
 
   if (error || !bill) {

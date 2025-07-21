@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { ArrowLeft, User, Phone, Mail, Calendar, MapPin } from 'lucide-react'
 import api from '../lib/api'
+import { LoadingPatientDetail } from '../components/loading/PatientLoadingStates'
 
 interface Patient {
   id: number
@@ -32,12 +33,8 @@ const PatientDetailPage = () => {
     }
   )
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-b-2 border-green-600 rounded-full animate-spin"></div>
-      </div>
-    )
+  if (isLoading || error) {
+    return <LoadingPatientDetail />
   }
 
   if (error || !patient) {
