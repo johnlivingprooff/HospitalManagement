@@ -46,14 +46,14 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS if settings.ALLOWED_ORIGINS else ["*"],  # Fallback to allow all if not set
+    allow_origins=settings.allowed_origins_list if settings.allowed_origins_list else ["*"],  # Fallback to allow all if not set
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Debug: Print CORS origins
-print(f"🌐 CORS Allowed Origins: {settings.ALLOWED_ORIGINS}")
+print(f"🌐 CORS Allowed Origins: {settings.allowed_origins_list}")
 
 # Middleware to log all requests
 @app.middleware("http")

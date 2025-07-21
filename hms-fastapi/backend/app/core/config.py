@@ -33,12 +33,14 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # CORS 
-    ALLOWED_ORIGINS: list = []
+    ALLOWED_ORIGINS: str = ""
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        origins_env = os.getenv("ALLOWED_ORIGINS", "")
-        self.ALLOWED_ORIGINS = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+    @property
+    def allowed_origins_list(self) -> List[str]:
+        """Convert comma-separated ALLOWED_ORIGINS string to list"""
+        if not self.ALLOWED_ORIGINS:
+            return []
+        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
 
     # App
     APP_NAME: str = "HMS FastAPI"
