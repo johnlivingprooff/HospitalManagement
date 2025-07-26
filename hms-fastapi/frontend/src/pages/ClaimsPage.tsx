@@ -8,10 +8,11 @@ const LoadingClaimsPage = React.lazy(() => import('../components/loading/ClaimsL
 interface Claim {
   id: number
   patient_id: number
-  scheme: string
-  amount: number
+  scheme_id: number
+  amount_claimed: number
+  amount_paid: number
   status: string
-  submitted_at: string
+  created_at: string
   processed_at?: string
   outcome?: string
   description?: string
@@ -20,7 +21,7 @@ interface Claim {
 const ClaimsPage = () => {
   const queryClient = useQueryClient()
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ patient_id: '', scheme: '', amount: '', description: '' })
+  const [form, setForm] = useState({ patient_id: '', scheme_id: '', amount_claimed: '', description: '' })
   const [patientSearch, setPatientSearch] = useState('')
   const [showPatientDropdown, setShowPatientDropdown] = useState(false)
   const patientDropdownRef = useRef<HTMLDivElement>(null)
@@ -55,13 +56,20 @@ const ClaimsPage = () => {
     return map
   }, [patients])
 
+  // Map schemeId to scheme for fast lookup
+  const schemeMap = React.useMemo(() => {
+    const map: Record<string, any> = {}
+    schemes?.forEach((s: any) => { map[s.id] = s })
+    return map
+  }, [schemes])
+
   const createClaim = useMutation(
     (data: any) => api.post('/api/claims', data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('claims')
         setShowModal(false)
-        setForm({ patient_id: '', scheme: '', amount: '', description: '' })
+        setForm({ patient_id: '', scheme_id: '', amount_claimed: '', description: '' })
         setToast({ message: 'Claim submitted successfully', type: 'success' })
       },
       onError: () => setToast({ message: 'Failed to submit claim', type: 'error' })
@@ -70,14 +78,14 @@ const ClaimsPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.patient_id || !form.scheme || !form.amount) {
+    if (!form.patient_id || !form.scheme_id || !form.amount_claimed) {
       setToast({ message: 'All fields are required', type: 'error' })
       return
     }
     createClaim.mutate({
       patient_id: Number(form.patient_id),
-      scheme: form.scheme,
-      amount: Number(form.amount),
+      scheme_id: Number(form.scheme_id),
+      amount_claimed: Number(form.amount_claimed),
       description: form.description
     })
   }
@@ -110,60 +118,92 @@ const ClaimsPage = () => {
           Submit New Claim
         </button>
       </div>
-      <div className="p-0 overflow-x-auto bg-white rounded-lg shadow sm:p-4">
-        <table className="min-w-full text-sm divide-y divide-gray-200">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-4 py-3 font-semibold text-left text-gray-700">ID</th>
-              <th className="px-4 py-3 font-semibold text-left text-gray-700">Patient ID</th>
-              <th className="px-4 py-3 font-semibold text-left text-gray-700">Scheme</th>
-              <th className="px-4 py-3 font-semibold text-left text-gray-700">Amount</th>
-              <th className="px-4 py-3 font-semibold text-left text-gray-700">Status</th>
-              <th className="px-4 py-3 font-semibold text-left text-gray-700">Submitted</th>
-              <th className="px-4 py-3 font-semibold text-left text-gray-700">Outcome</th>
-            </tr>
-          </thead>
-          <tbody>
-            {claims?.map(claim => (
-              <tr key={claim.id} className="transition even:bg-gray-50 hover:bg-blue-50">
-                <td className="px-4 py-2 whitespace-nowrap">{claim.id}</td>
-                <td className="px-4 py-2 whitespace-nowrap">
-                  {patientMap[claim.patient_id]?.first_name
-                    ? `${patientMap[claim.patient_id].first_name} ${patientMap[claim.patient_id].last_name}`
-                    : claim.patient_id}
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap">{claim.scheme}</td>
-                <td className="px-4 py-2 whitespace-nowrap">{claim.amount}</td>
-                <td className="px-4 py-2 whitespace-nowrap">
-                  {claim.status}
-                  {['pending', 'processing'].includes(claim.status) && (
-                    <select
-                      className="ml-2 input"
-                      value={claim.status}
-                      onChange={async e => {
-                        try {
-                          await updateClaim(claim.id, { status: e.target.value })
-                          queryClient.invalidateQueries('claims')
-                          setToast({ message: 'Status updated', type: 'success' })
-                        } catch {
-                          setToast({ message: 'Failed to update status', type: 'error' })
-                        }
-                      }}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                      <option value="paid">Paid</option>
-                    </select>
-                  )}
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap">{new Date(claim.submitted_at).toLocaleString()}</td>
-                <td className="px-4 py-2 whitespace-nowrap">{claim.outcome || '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="overflow-hidden bg-white rounded-lg shadow">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900">
+            Claims ({claims?.length || 0})
+          </h2>
+          {/* Optionally add summary/filter UI here */}
+        </div>
+        {claims?.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">No claims found.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ID</th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Patient</th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Scheme</th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Amount</th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Submitted</th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Outcome</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {claims?.map(claim => (
+                  <tr key={claim.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">{claim.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {patientMap[claim.patient_id]?.first_name && patientMap[claim.patient_id]?.last_name
+                        ? `${patientMap[claim.patient_id].first_name} ${patientMap[claim.patient_id].last_name}`
+                        : ''}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {schemeMap[claim.scheme_id]?.name && schemeMap[claim.scheme_id]?.type
+                        ? `${schemeMap[claim.scheme_id].name} (${schemeMap[claim.scheme_id].type})`
+                        : ''}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{claim.amount_claimed}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full 
+                        ${claim.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
+                        ${claim.status === 'processing' ? 'bg-blue-100 text-blue-800' : ''}
+                        ${claim.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
+                        ${claim.status === 'rejected' ? 'bg-red-100 text-red-800' : ''}
+                        ${claim.status === 'paid' ? 'bg-purple-100 text-purple-800' : ''}
+                      `}>
+                        {claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        {['pending', 'processing'].includes(claim.status) && (
+                          <select
+                            className="min-w-0 px-2 py-1 text-xs border-gray-300 rounded input h-7 focus:ring-blue-500 w-28"
+                            style={{ minWidth: '0', width: '7.5rem', maxWidth: '100%' }}
+                            value={claim.status}
+                            title="Change status"
+                            onChange={async e => {
+                              try {
+                                await updateClaim(claim.id, { status: e.target.value })
+                                queryClient.invalidateQueries('claims')
+                                setToast({ message: 'Status updated', type: 'success' })
+                              } catch {
+                                setToast({ message: 'Failed to update status', type: 'error' })
+                              }
+                            }}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="paid">Paid</option>
+                          </select>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{new Date(claim.created_at).toLocaleDateString(undefined, { month: 'short', day: '2-digit', year: 'numeric' })
+                      .replace(/(\w+)\s(\d{2}),\s(\d{4})/, (_, m, d, y) => `${m}-${d}, ${y}`)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{claim.outcome || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Submit Claim">
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -226,7 +266,9 @@ const ClaimsPage = () => {
                 tabIndex={0}
                 onClick={() => setShowSchemeDropdown(true)}
               >
-                {form.scheme || 'Select scheme'}
+                {form.scheme_id && schemes?.find((s: any) => String(s.id) === form.scheme_id)
+                  ? `${schemes.find((s: any) => String(s.id) === form.scheme_id).name} (${schemes.find((s: any) => String(s.id) === form.scheme_id).type})`
+                  : 'Select scheme'}
               </div>
               {showSchemeDropdown && (
                 <div
@@ -244,20 +286,20 @@ const ClaimsPage = () => {
                   {loadingSchemes ? (
                     <div className="p-2 text-sm text-center text-gray-400">Loading...</div>
                   ) : (
-                    schemes?.filter((s: string) =>
-                      !schemeSearch || s.toLowerCase().includes(schemeSearch.toLowerCase())
-                    ).map((s: string) => (
+                    schemes?.filter((s: any) =>
+                      !schemeSearch || s.name.toLowerCase().includes(schemeSearch.toLowerCase())
+                    ).map((s: any) => (
                       <div
-                        key={s}
-                        className={`px-3 py-2 hover:bg-blue-50 cursor-pointer ${form.scheme === s ? 'bg-blue-100 font-semibold' : ''}`}
+                        key={s.id}
+                        className={`px-3 py-2 hover:bg-blue-50 cursor-pointer ${form.scheme_id === String(s.id) ? 'bg-blue-100 font-semibold' : ''}`}
                         onMouseDown={e => {
                           e.preventDefault();
-                          setForm(f => ({ ...f, scheme: s }))
+                          setForm(f => ({ ...f, scheme_id: String(s.id) }))
                           setShowSchemeDropdown(false)
                           setSchemeSearch('')
                         }}
                       >
-                        {s}
+                        {s.name} <span className="text-xs text-gray-500">({s.type})</span>
                       </div>
                     ))
                   )}
@@ -267,7 +309,7 @@ const ClaimsPage = () => {
           </div>
           <div>
             <label>Amount</label>
-            <input type="number" className="input" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} required />
+            <input type="number" className="input" value={form.amount_claimed} onChange={e => setForm(f => ({ ...f, amount_claimed: e.target.value }))} required />
           </div>
           <div>
             <label>Description</label>

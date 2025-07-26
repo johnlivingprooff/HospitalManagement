@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
     # Startup
     print("🚀 Starting HMS FastAPI application...")
     create_tables()
+    print("✅ Database tables created (or already exist)")
     
     # Initialize database with admin user and sample data
     await initialize_database()

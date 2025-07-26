@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
 from enum import Enum
+from sqlalchemy.dialects.postgresql import JSONB
+
 
 # Claim status enum
 class ClaimStatus(str, Enum):
@@ -18,12 +20,14 @@ class Claim(Base):
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
     scheme_id = Column(Integer, ForeignKey("schemes.id"), nullable=False)
-    claim_number = Column(String, unique=True, nullable=False)
+    claim_number = Column(String, unique=True, nullable=True)
     amount_claimed = Column(Integer, nullable=False)  # in cents
     amount_approved = Column(Integer)  # in cents
     status = Column(String, default=ClaimStatus.pending.value)
     description = Column(Text)
     date_of_service = Column(Date)
+    outcome = Column(Text)
+    processed_at = Column(DateTime)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
@@ -41,14 +45,17 @@ class Claim(Base):
 
 class Scheme(Base):
     __tablename__ = "schemes"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, nullable=False)
-    description = Column(Text)
-    coverage_limit = Column(Integer)  # in cents
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    name = Column(String(128), nullable=False, unique=True)
+    type = Column(String(64), nullable=False)
+    description = Column(Text, nullable=True)
+    code = Column(String(64), nullable=True, unique=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    coverage_details = Column(JSONB, nullable=True)
+    contact_info = Column(JSONB, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # Relationships
     claims = relationship("Claim", back_populates="scheme")
@@ -70,6 +77,7 @@ class Patient(Base):
     allergies = Column(Text)
     current_medications = Column(Text)
     insurance_info = Column(Text)
+    scheme_id = Column(Integer, ForeignKey("schemes.id"), nullable=True)
     is_active = Column(Boolean, default=True)
     created_by_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, server_default=func.now())
@@ -84,6 +92,10 @@ class Patient(Base):
     appointments = relationship("Appointment", back_populates="patient")
     medical_records = relationship("MedicalRecord", back_populates="patient")
     claims = relationship("Claim", back_populates="patient")
+    ward_patients = relationship("WardPatient", back_populates="patient")
+    scheme = relationship("Scheme", foreign_keys=[scheme_id])
+
+
 
 class Appointment(Base):
     __tablename__ = "appointments"

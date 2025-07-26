@@ -13,6 +13,8 @@ const SchemesPage: React.FC = () => {
   const [form, setForm] = useState({ name: '', type: '', description: '' });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ name: '', type: '', description: '' });
+  const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const { data: schemes, isLoading } = useQuery('schemes', () => api.get('/api/schemes').then(res => res.data));
 
@@ -34,6 +36,7 @@ const SchemesPage: React.FC = () => {
       onSuccess: () => {
         setToast({ message: 'Scheme updated', type: 'success' });
         setEditingId(null);
+        setShowModal(false);
         queryClient.invalidateQueries('schemes');
       },
       onError: () => setToast({ message: 'Failed to update scheme', type: 'error' }),
@@ -41,7 +44,7 @@ const SchemesPage: React.FC = () => {
   );
 
   const archiveMutation = useMutation(
-    ({ id, active }: { id: number; active: boolean }) => api.put(`/api/schemes/${id}`, { active }),
+    ({ id, is_active }: { id: number; is_active: boolean }) => api.put(`/api/schemes/${id}`, { is_active }),
     {
       onSuccess: () => {
         setToast({ message: 'Scheme status updated', type: 'success' });
@@ -99,8 +102,8 @@ const SchemesPage: React.FC = () => {
 
   // Summary card helpers
   const total = (schemes || []).length;
-  const active = (schemes || []).filter((s: any) => s.active).length;
-  const inactive = (schemes || []).filter((s: any) => !s.active).length;
+  const active = (schemes || []).filter((s: any) => s.is_active).length;
+  const inactive = (schemes || []).filter((s: any) => !s.is_active).length;
   const types = Array.from(new Set((schemes || []).map((s: any) => s.type))).length;
 
   return (
@@ -109,9 +112,12 @@ const SchemesPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Schemes</h1>
         {canEdit && (
           <button
-            onClick={() => {}}
+            onClick={() => {
+              setIsEditMode(false);
+              setForm({ name: '', type: '', description: '' });
+              setShowModal(true);
+            }}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            disabled
           >
             New Scheme
           </button>
@@ -197,82 +203,129 @@ const SchemesPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">{scheme.description}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${scheme.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {scheme.active ? 'Active' : 'Inactive'}
+                        {scheme.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex space-x-2">
                         {canEdit ? (
-                          editingId === scheme.id ? (
-                            <>
-                              <input
-                                className="border px-1 py-0.5 rounded"
-                                value={editForm.name}
-                                onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
-                              />
-                              <input
-                                className="border px-1 py-0.5 rounded"
-                                value={editForm.type}
-                                onChange={e => setEditForm(f => ({ ...f, type: e.target.value }))}
-                              />
-                              <input
-                                className="border px-1 py-0.5 rounded"
-                                value={editForm.description}
-                                onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
-                              />
-                              <button
-                                className="flex items-center justify-center p-2 text-green-700 transition-colors duration-200 bg-green-100 rounded-lg hover:bg-green-200"
-                                title="Save"
-                                onClick={() => updateMutation.mutate({ id: scheme.id, data: editForm })}
-                                type="button"
-                              >
-                                {/* Save icon (checkmark) */}
+                          <>
+                            <button
+                              className="flex items-center justify-center p-2 text-yellow-700 transition-colors duration-200 bg-yellow-100 rounded-lg hover:bg-yellow-200"
+                              title="Edit Scheme"
+                              onClick={() => {
+                                setEditingId(scheme.id);
+                                setEditForm({ name: scheme.name, type: scheme.type, description: scheme.description });
+                                setIsEditMode(true);
+                                setShowModal(true);
+                              }}
+                              type="button"
+                            >
+                              {/* Edit icon */}
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h2v2h2v-2h2v-2h-2v-2h-2v2H9v2z" /></svg>
+                            </button>
+                            <button
+                              className={`flex items-center justify-center p-2 transition-colors duration-200 rounded-lg ${scheme.active ? 'text-red-700 bg-red-100 hover:bg-red-200' : 'text-green-700 bg-green-100 hover:bg-green-200'}`}
+                              title={scheme.is_active ? 'Archive Scheme' : 'Activate Scheme'}
+                              onClick={() => archiveMutation.mutate({ id: scheme.id, is_active: !scheme.is_active })}
+                              type="button"
+                            >
+                              {scheme.is_active ? (
+                                // Archive icon (Trash)
+                                <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
+                                </svg>
+                              ) : (
+                                // Activate icon (UserCheck)
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                              </button>
-                              <button
-                                className="flex items-center justify-center p-2 text-gray-700 transition-colors duration-200 bg-gray-100 rounded-lg hover:bg-gray-200"
-                                title="Cancel"
-                                onClick={() => setEditingId(null)}
-                                type="button"
-                              >
-                                {/* Cancel icon (X) */}
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                className="flex items-center justify-center p-2 text-yellow-700 transition-colors duration-200 bg-yellow-100 rounded-lg hover:bg-yellow-200"
-                                title="Edit Scheme"
-                                onClick={() => {
-                                  setEditingId(scheme.id);
-                                  setEditForm({ name: scheme.name, type: scheme.type, description: scheme.description });
-                                }}
-                                type="button"
-                              >
-                                {/* Edit icon */}
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h2v2h2v-2h2v-2h-2v-2h-2v2H9v2z" /></svg>
-                              </button>
-                              <button
-                                className={`flex items-center justify-center p-2 transition-colors duration-200 rounded-lg ${scheme.active ? 'text-red-700 bg-red-100 hover:bg-red-200' : 'text-green-700 bg-green-100 hover:bg-green-200'}`}
-                                title={scheme.active ? 'Archive Scheme' : 'Activate Scheme'}
-                                onClick={() => archiveMutation.mutate({ id: scheme.id, active: !scheme.active })}
-                                type="button"
-                              >
-                                {scheme.active ? (
-                                  // Archive icon (UserX)
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                                ) : (
-                                  // Activate icon (UserCheck)
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                )}
-                              </button>
-                            </>
-                          )
+                              )}
+                            </button>
+                          </>
                         ) : (
                           <span className="text-gray-400">View Only</span>
                         )}
                       </div>
+      {/* Add/Edit Scheme Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+          <div className="relative w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+            <button
+              className="absolute text-gray-400 top-2 right-2 hover:text-gray-600"
+              onClick={() => {
+                setShowModal(false);
+                setEditingId(null);
+                setIsEditMode(false);
+              }}
+              title="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">{isEditMode ? 'Edit Scheme' : 'Add New Scheme'}</h2>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                if (isEditMode && editingId) {
+                  updateMutation.mutate({ id: editingId, data: editForm });
+                } else if (!isEditMode) {
+                  createMutation.mutate(form);
+                  setShowModal(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Name</label>
+                <input
+                  className="w-full input"
+                  value={isEditMode ? editForm.name : form.name}
+                  onChange={e => isEditMode
+                    ? setEditForm(f => ({ ...f, name: e.target.value }))
+                    : setForm(f => ({ ...f, name: e.target.value }))}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Type</label>
+                <input
+                  className="w-full input"
+                  value={isEditMode ? editForm.type : form.type}
+                  onChange={e => isEditMode
+                    ? setEditForm(f => ({ ...f, type: e.target.value }))
+                    : setForm(f => ({ ...f, type: e.target.value }))}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                  className="w-full input"
+                  value={isEditMode ? editForm.description : form.description}
+                  onChange={e => isEditMode
+                    ? setEditForm(f => ({ ...f, description: e.target.value }))
+                    : setForm(f => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingId(null);
+                    setIsEditMode(false);
+                  }}
+                >Cancel</button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                  disabled={isEditMode ? updateMutation.isLoading : createMutation.isLoading}
+                >{isEditMode ? (updateMutation.isLoading ? 'Saving...' : 'Save') : (createMutation.isLoading ? 'Adding...' : 'Add')}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
                     </td>
                   </tr>
                 ))}

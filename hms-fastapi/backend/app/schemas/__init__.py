@@ -2,6 +2,7 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, date
 from typing import Literal
+from typing import Optional, Any, Dict
 
 
 # Base schemas
@@ -11,18 +12,26 @@ class BaseSchema(BaseModel):
 
 # --- Scheme Schemas ---
 class SchemeBase(BaseSchema):
-    name: str
+    name: str = Field(..., max_length=128)
+    type: str = Field(..., max_length=64)
     description: Optional[str] = None
-    coverage_limit: Optional[float] = None
+    code: Optional[str] = Field(None, max_length=64)
+    is_active: Optional[bool] = True
+    coverage_details: Optional[Dict[str, Any]] = None
+    contact_info: Optional[Dict[str, Any]] = None
 
 class SchemeCreate(SchemeBase):
     pass
 
-class SchemeUpdate(BaseSchema):
-    name: Optional[str] = None
+class SchemeUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=128)
+    type: Optional[str] = Field(None, max_length=64)
     description: Optional[str] = None
-    coverage_limit: Optional[float] = None
+    code: Optional[str] = Field(None, max_length=64)
     is_active: Optional[bool] = None
+    coverage_details: Optional[Dict[str, Any]] = None
+    contact_info: Optional[Dict[str, Any]] = None
+
 
 class SchemeOut(SchemeBase):
     id: int

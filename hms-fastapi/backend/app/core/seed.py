@@ -77,20 +77,38 @@ async def seed_sample_schemes():
         sample_schemes = [
             Scheme(
                 name="NHIF",
+                type="public",
                 description="National Health Insurance Fund",
-                coverage_limit=500000,  # 5000.00 in cents
+                coverage_details={
+                    "coverage_type": "outpatient",
+                    "coverage_percentage": 80,
+                    "deductible": 10000,  # 100.00 in cents
+                    "coverage_limit": 500000  # 5000.00 in cents
+                },
                 is_active=True
             ),
             Scheme(
                 name="Private Insurance",
+                type="private",
                 description="Private Health Insurance",
-                coverage_limit=1000000,  # 10000.00 in cents
+                coverage_details={
+                    "coverage_type": "surgery",
+                    "coverage_percentage": 50,
+                    "deductible": 5000,  # 500.00 in cents
+                    "coverage_limit": 300000  # 3000.00 in cents
+                },
                 is_active=True
             ),
             Scheme(
                 name="Corporate Insurance",
+                type="corporate",
                 description="Corporate Health Insurance",
-                coverage_limit=750000,  # 7500.00 in cents
+                coverage_details={
+                    "coverage_type": "lab_tests",
+                    "coverage_percentage": 100,
+                    "deductible": 20000,  # 2000.00 in cents
+                    "coverage_limit": 750000  # 7500.00 in cents
+                },
                 is_active=True
             )
         ]
@@ -139,6 +157,7 @@ async def seed_sample_patients():
                 address="123 Main Street, City",
                 emergency_contact="Jane Doe",
                 emergency_phone="+1234567891",
+                scheme_id=1,  # Assuming NHIF is the first scheme
                 created_by_id=admin_user.id if admin_user else None
             ),
             Patient(
@@ -151,6 +170,7 @@ async def seed_sample_patients():
                 address="456 Oak Avenue, City",
                 emergency_contact="Bob Smith",
                 emergency_phone="+1234567893",
+                scheme_id=2,  # Assuming Private Insurance is the second scheme
                 created_by_id=admin_user.id if admin_user else None
             )
         ]
@@ -260,22 +280,17 @@ async def seed_admin_user():
         
         if not admin_user:
             print("🌱 Seeding admin user...")
-            
-            # Create admin user
             admin_user = User(
-                username="admin",
                 email="admin@hospital.com",
+                password=get_password_hash("admin123"),
                 first_name="System",
                 last_name="Administrator",
                 role="admin",
-                is_active=True,
-                password=get_password_hash("admin123")  # Default password
+                is_active=True
             )
-            
             db.add(admin_user)
             db.commit()
             db.refresh(admin_user)
-            
             print("✅ Admin user created successfully!")
             print("📧 Email: admin@hospital.com")
             print("🔑 Password: admin123")
@@ -308,48 +323,38 @@ async def seed_sample_data():
         
         if user_count <= 1:  # Only admin exists
             print("🌱 Seeding sample data...")
-            
-            # Create sample users
             sample_users = [
                 User(
-                    username="dr.smith",
                     email="dr.smith@hospital.com",
+                    password=get_password_hash("doctor123"),
                     first_name="John",
                     last_name="Smith",
                     role="doctor",
-                    is_active=True,
-                    password=get_password_hash("doctor123"),
-                    specialization="Cardiology"
+                    is_active=True
                 ),
                 User(
-                    username="nurse.jane",
-                    email="nurse.jane@hospital.com", 
+                    email="nurse.jane@hospital.com",
+                    password=get_password_hash("nurse123"),
                     first_name="Jane",
                     last_name="Doe",
                     role="nurse",
-                    is_active=True,
-                    password=get_password_hash("nurse123")
+                    is_active=True
                 ),
                 User(
-                    username="reception.mary",
                     email="reception.mary@hospital.com",
+                    password=get_password_hash("reception123"),
                     first_name="Mary",
-                    last_name="Johnson", 
+                    last_name="Johnson",
                     role="receptionist",
-                    is_active=True,
-                    password=get_password_hash("reception123")
+                    is_active=True
                 )
             ]
-            
             for user in sample_users:
                 db.add(user)
-            
             db.commit()
-            print("✅ Sample data seeded successfully!")
-            
+            print("✅ Sample users seeded successfully!")
         else:
-            print("✅ Sample data already exists")
-            
+            print("✅ Sample users already exist, skipping seeding")
         db.close()
         
     except Exception as e:
@@ -359,13 +364,9 @@ async def seed_sample_data():
             db.close()
 
 async def initialize_database():
-    """
-    Initialize database with tables and essential data
-    """
-    print("🗄️  Initializing database...")
-    
-    # First, create all tables
-    # done in the database.py file
+    """Initialize the database with essential data"""
+    print("🔄 Initializing database...")
+
     
     # Wait for database to be available
     if not await wait_for_database():

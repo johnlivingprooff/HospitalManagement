@@ -20,9 +20,10 @@ def create_claim(claim: ClaimCreate, db: Session = Depends(get_db)):
     db.add(db_claim)
     db.commit()
     db.refresh(db_claim)
+    return db_claim
 
 
-@router.get("/", response_model=List[ClaimOut])
+
 @router.get("/", response_model=List[ClaimOut])
 @router.get("", response_model=List[ClaimOut])
 def list_claims(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
