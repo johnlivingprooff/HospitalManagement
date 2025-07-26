@@ -19,3 +19,4 @@ __pycache__/
 .github/
 *.cpython-*
 *.pyo
+*.ps1
