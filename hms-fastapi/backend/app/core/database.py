@@ -27,5 +27,5 @@ def get_db():
 
 # Create tables
 def create_tables():
-    Base.metadata.drop_all(bind=engine)  # Optional: drop existing tables
+    # Base.metadata.drop_all(bind=engine)  # Optional: drop existing tables
     Base.metadata.create_all(bind=engine)
