@@ -8,10 +8,12 @@ from app.schemas import SchemeCreate, SchemeUpdate, SchemeOut
 router = APIRouter()
 
 @router.get("/", response_model=List[SchemeOut])
+@router.get("", response_model=List[SchemeOut])
 def list_schemes(db: Session = Depends(get_db)):
     return db.query(Scheme).all()
 
 @router.post("/", response_model=SchemeOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SchemeOut, status_code=status.HTTP_201_CREATED)
 def create_scheme(scheme: SchemeCreate, db: Session = Depends(get_db)):
     if db.query(Scheme).filter(Scheme.name == scheme.name).first():
         raise HTTPException(status_code=400, detail="Scheme with this name already exists")

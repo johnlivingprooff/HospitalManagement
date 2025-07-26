@@ -24,6 +24,8 @@ import WardsPage from './pages/WardsPage'
 import WardDetailPage from './pages/WardDetailPage'
 import ClaimsPage from './pages/ClaimsPage'
 import Layout from './components/Layout'
+import SchemesPage from './pages/SchemesPage'
+import SchemeDetailPage from './pages/SchemeDetailPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +70,8 @@ function App() {
               <Route path="wards" element={<WardsPage />} />
               <Route path="wards/:wardId" element={<WardDetailPage />} />
               <Route path="claims" element={<ClaimsPage />} />
+              <Route path="schemes" element={<SchemesPage />} />
+              <Route path="schemes/:id" element={<SchemeDetailPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
           </Routes>

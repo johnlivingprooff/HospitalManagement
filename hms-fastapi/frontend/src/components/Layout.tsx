@@ -18,7 +18,8 @@ import {
   Building,
   Bell,
   Settings as SettingsIcon,
-  User as UserIcon
+  User as UserIcon,
+  FolderOpen
 } from 'lucide-react'
 
 const Layout = () => {
@@ -35,7 +36,8 @@ const Layout = () => {
     { name: 'Doctors', href: '/doctors', icon: UserCheck, resource: 'doctors' },
     { name: 'Wards', href: '/wards', icon: Building, resource: 'wards' },
     { name: 'Medical Records', href: '/medical-records', icon: FileText, resource: 'medical_records' },
-    { name: 'Claims', href: '/claims', icon: CreditCard, resource: 'claims' },
+    { name: 'Claims', href: '/claims', icon: FolderOpen, resource: 'claims' },
+    { name: 'Schemes', href: '/schemes', icon: CreditCard, resource: 'schemes' },
     { name: 'Lab', href: '/lab', icon: TestTube, resource: 'lab' },
     { name: 'Pharmacy', href: '/pharmacy', icon: PillIcon, resource: 'pharmacy' },
     { name: 'Bills', href: '/bills', icon: CreditCard, resource: 'bills' },

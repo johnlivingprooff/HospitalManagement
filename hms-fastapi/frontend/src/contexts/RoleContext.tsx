@@ -13,6 +13,7 @@ type Resource =
   | 'wards' 
   | 'medical_records' 
   | 'claims'
+  | 'schemes'
   | 'lab' 
   | 'pharmacy' 
   | 'bills' 
@@ -38,6 +39,7 @@ const ROLE_PERMISSIONS: Record<Roles, RolePermissions> = {
     wards: ['read', 'write', 'delete'],
     medical_records: ['read', 'write', 'delete'],
     claims: ['read', 'write', 'delete'],
+    schemes: ['read', 'write', 'delete'],
     lab: ['read', 'write', 'delete'],
     pharmacy: ['read', 'write', 'delete'],
     bills: ['read', 'write', 'delete'],
@@ -54,6 +56,7 @@ const ROLE_PERMISSIONS: Record<Roles, RolePermissions> = {
     wards: ['read', 'write'],
     medical_records: ['read', 'write', 'delete'],
     claims: ['read', 'write'],
+    schemes: ['read', 'write'],
     lab: ['read', 'write'],
     pharmacy: ['read', 'write'],
     bills: ['read', 'write'],
@@ -70,6 +73,7 @@ const ROLE_PERMISSIONS: Record<Roles, RolePermissions> = {
     wards: ['read', 'write'],
     medical_records: ['read', 'write'],
     claims: ['read'],
+    schemes: ['read', 'write'],
     lab: ['read', 'write'],
     pharmacy: ['read'],
     bills: ['read'],
@@ -86,6 +90,7 @@ const ROLE_PERMISSIONS: Record<Roles, RolePermissions> = {
     wards: ['read'], // Can view wards but not manage them
     medical_records: ['read'],
     claims: ['read', 'write'],
+    schemes: ['read'],
     lab: ['read'],
     pharmacy: ['read'],
     bills: ['read', 'write'],
