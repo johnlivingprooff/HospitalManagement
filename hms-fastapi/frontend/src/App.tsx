@@ -22,6 +22,7 @@ import LabTestDetailPage from './pages/LabTestDetailPage'
 import UsersPage from './pages/UsersPage'
 import WardsPage from './pages/WardsPage'
 import WardDetailPage from './pages/WardDetailPage'
+import ClaimsPage from './pages/ClaimsPage'
 import Layout from './components/Layout'
 
 const queryClient = new QueryClient({
@@ -66,6 +67,7 @@ function App() {
               <Route path="users" element={<UsersPage />} />
               <Route path="wards" element={<WardsPage />} />
               <Route path="wards/:wardId" element={<WardDetailPage />} />
+              <Route path="claims" element={<ClaimsPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
           </Routes>

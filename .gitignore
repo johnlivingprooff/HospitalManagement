@@ -15,3 +15,4 @@ dist/
 *.bat
 *.exe
 __pycache__/
+.github/

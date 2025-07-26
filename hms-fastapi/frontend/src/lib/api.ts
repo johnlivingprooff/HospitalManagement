@@ -37,4 +37,10 @@ api.interceptors.response.use(
   }
 )
 
+// Claims API
+export const fetchClaims = () => api.get('/api/claims').then(res => res.data)
+export const createClaim = (data: any) => api.post('/api/claims', data).then(res => res.data)
+export const updateClaim = (id: number, data: any) => api.patch(`/api/claims/${id}`, data).then(res => res.data)
+export const deleteClaim = (id: number) => api.delete(`/api/claims/${id}`)
+
 export default api

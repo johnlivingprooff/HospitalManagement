@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy import text
 from app.core.database import get_db
-from app.models import User
+from app.models import User, Patient
+from app.models.claim import Claim, ClaimStatus
 from app.core.security import get_password_hash
 import asyncio
 import time
@@ -199,6 +200,60 @@ async def initialize_database():
     """
     print("🗄️  Initializing database...")
     
+
+async def seed_sample_claims():
+    """
+    Seed sample claims for demo/development, linked to sample patients.
+    """
+    try:
+        db_gen = get_db()
+        db: Session = next(db_gen)
+        # Find sample patients (by email or just first 2 patients)
+        patients = db.query(Patient).order_by(Patient.id).limit(2).all()
+        if not patients:
+            print("⚠️  No patients found, skipping claim seeding.")
+            db.close()
+            return
+        # Check if claims already exist
+        claim_count = db.query(Claim).count()
+        if claim_count > 0:
+            print("✅ Sample claims already exist")
+            db.close()
+            return
+        print("🌱 Seeding sample claims...")
+        sample_claims = [
+            Claim(
+                patient_id=patients[0].id,
+                scheme="NHIF",
+                amount=1200.0,
+                status=ClaimStatus.pending,
+                description="NHIF claim for outpatient visit"
+            ),
+            Claim(
+                patient_id=patients[0].id,
+                scheme="Private Insurance",
+                amount=3500.0,
+                status=ClaimStatus.processing,
+                description="Private insurance claim for surgery"
+            ),
+            Claim(
+                patient_id=patients[1].id if len(patients) > 1 else patients[0].id,
+                scheme="NHIF",
+                amount=800.0,
+                status=ClaimStatus.approved,
+                description="NHIF claim for lab tests"
+            )
+        ]
+        for claim in sample_claims:
+            db.add(claim)
+        db.commit()
+        print("✅ Sample claims seeded successfully!")
+        db.close()
+    except Exception as e:
+        print(f"❌ Error seeding sample claims: {str(e)}")
+        if 'db' in locals():
+            db.rollback()
+            db.close()
     # Try to seed admin user
     admin_success = await seed_admin_user()
     
@@ -214,6 +269,7 @@ async def initialize_database():
     from app.core.config import settings
     if settings.DEBUG and admin_success:
         await seed_sample_data()
-    
+        await seed_sample_claims()
+
     print("✅ Database initialization complete!")
     return True

@@ -8,7 +8,8 @@ from app.core.database import create_tables
 from app.core.search_init import initialize_search_optimization
 from app.core.seed import initialize_database
 from app.services.cache_service import cache_service
-from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard, wards
+from fastapi import APIRouter
+from app.api import auth, patients, appointments, users, bills, medical_records, lab_tests, prescriptions, dashboard, wards, claims, schemes
 from fastapi.responses import JSONResponse
 
 # Create tables and initialize search optimization on startup
@@ -82,6 +83,9 @@ app.include_router(medical_records.router, prefix="/api/medical-records", tags=[
 app.include_router(lab_tests.router, prefix="/api/lab-tests", tags=["Lab Tests"])
 app.include_router(prescriptions.router, prefix="/api/prescriptions", tags=["Prescriptions"])
 app.include_router(wards.router, prefix="/api/wards", tags=["Wards"])
+app.include_router(claims.router, prefix="/api/claims", tags=["Claims"])
+app.include_router(schemes.router, prefix="/api/schemes", tags=["Schemes"])
+
 
 # Health check endpoint
 @app.get("/")

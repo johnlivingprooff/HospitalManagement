@@ -46,6 +46,8 @@ class Patient(Base):
     created_by = relationship("User", back_populates="created_patients", foreign_keys=[created_by_id])
     appointments = relationship("Appointment", back_populates="patient")
     medical_records = relationship("MedicalRecord", back_populates="patient")
+    # Add claims relationship
+    claims = relationship("Claim", back_populates="patient")
 
 class Appointment(Base):
     __tablename__ = "appointments"
