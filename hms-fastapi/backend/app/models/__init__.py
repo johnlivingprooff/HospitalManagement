@@ -2,23 +2,56 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Foreign
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
+from enum import Enum
 
-class User(Base):
-    __tablename__ = "users"
+# Claim status enum
+class ClaimStatus(str, Enum):
+    pending = "pending"
+    processing = "processing"
+    approved = "approved"
+    rejected = "rejected"
+    paid = "paid"
+
+class Claim(Base):
+    __tablename__ = "claims"
     
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    password = Column(String, nullable=False)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    role = Column(String, nullable=False, default="user")
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    scheme_id = Column(Integer, ForeignKey("schemes.id"), nullable=False)
+    claim_number = Column(String, unique=True, nullable=False)
+    amount_claimed = Column(Integer, nullable=False)  # in cents
+    amount_approved = Column(Integer)  # in cents
+    status = Column(String, default=ClaimStatus.pending.value)
+    description = Column(Text)
+    date_of_service = Column(Date)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    patient = relationship(
+        "Patient",
+        back_populates="claims",
+        foreign_keys=[patient_id]
+    )
+    scheme = relationship(
+        "Scheme",
+        back_populates="claims",
+        foreign_keys=[scheme_id]
+    )
+
+class Scheme(Base):
+    __tablename__ = "schemes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    description = Column(Text)
+    coverage_limit = Column(Integer)  # in cents
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
-    appointments_as_doctor = relationship("Appointment", back_populates="doctor", foreign_keys="[Appointment.doctor_id]")
-    created_patients = relationship("Patient", back_populates="created_by", foreign_keys="[Patient.created_by_id]")
+    claims = relationship("Claim", back_populates="scheme")
 
 class Patient(Base):
     __tablename__ = "patients"
@@ -43,10 +76,13 @@ class Patient(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
-    created_by = relationship("User", back_populates="created_patients", foreign_keys=[created_by_id])
+    created_by = relationship(
+        "User",
+        back_populates="created_patients",
+        foreign_keys=[created_by_id]
+    )
     appointments = relationship("Appointment", back_populates="patient")
     medical_records = relationship("MedicalRecord", back_populates="patient")
-    # Add claims relationship
     claims = relationship("Claim", back_populates="patient")
 
 class Appointment(Base):
@@ -218,3 +254,28 @@ class WardPatient(Base):
     patient = relationship("Patient", foreign_keys=[patient_id])
     ward = relationship("Ward", back_populates="patients", foreign_keys=[ward_id])
     doctor = relationship("User", foreign_keys=[doctor_id])
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    role = Column(String, nullable=False, default="user")
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    appointments_as_doctor = relationship(
+        "Appointment",
+        back_populates="doctor",
+        foreign_keys=[Appointment.doctor_id]
+    )
+    created_patients = relationship(
+        "Patient",
+        back_populates="created_by",
+        foreign_keys=[Patient.created_by_id]
+    )

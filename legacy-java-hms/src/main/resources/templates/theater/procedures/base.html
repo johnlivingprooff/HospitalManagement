@@ -1,9 +1,0 @@
-{% extends "../base.html" %}
-
-{% block menuBlock %}
-
-{{ protectedNavLink('/Hms/Theater/Procedures', 'Procedures', 'ReadTheaterProcedures', userPermissions) }}
-
-{{ protectedNavLink('/Hms/Theater/Procedures/New', 'New Procedure', 'WriteTheaterProcedures', userPermissions, 'ml-auto') }}
-
-{% endblock %}

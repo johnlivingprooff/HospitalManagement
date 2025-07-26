@@ -1,11 +1,64 @@
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, date
+from typing import Literal
+
 
 # Base schemas
 class BaseSchema(BaseModel):
     class Config:
         from_attributes = True
+
+# --- Scheme Schemas ---
+class SchemeBase(BaseSchema):
+    name: str
+    description: Optional[str] = None
+    coverage_limit: Optional[float] = None
+
+class SchemeCreate(SchemeBase):
+    pass
+
+class SchemeUpdate(BaseSchema):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    coverage_limit: Optional[float] = None
+    is_active: Optional[bool] = None
+
+class SchemeOut(SchemeBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+# --- Claim Schemas ---
+class ClaimBase(BaseSchema):
+    patient_id: int
+    scheme_id: int
+    amount_claimed: float
+    description: Optional[str] = None
+
+class ClaimCreate(ClaimBase):
+    pass
+
+class ClaimUpdate(BaseSchema):
+    status: Optional[Literal['pending', 'approved', 'rejected', 'processing', 'paid']] = None
+    processed_at: Optional[datetime] = None
+    outcome: Optional[str] = None
+    description: Optional[str] = None
+
+class ClaimOut(ClaimBase):
+    id: int
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    processed_at: Optional[datetime] = None
+    outcome: Optional[str] = None
+
+    class Config:
+        orm_mode = True
 
 # User schemas
 class UserBase(BaseSchema):

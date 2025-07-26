@@ -1,7 +1,0 @@
-[
-  {
-    "fieldName": "id",
-    "label": "Role",
-    "filter": "trim|required|long"
-  }
-]

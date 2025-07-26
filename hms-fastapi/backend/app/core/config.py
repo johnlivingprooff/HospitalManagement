@@ -19,7 +19,7 @@ def _get_secure_fallback_key() -> str:
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://hms_usr:MxmDMXGKYDSY7itDOU5TNabHst1r0wq0@dpg-d1trnuc9c44c73ccdm0g-a.oregon-postgres.render.com/hms_oq9k")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:user_password@localhost:5432/hms")
 
     # Redis Cache
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")

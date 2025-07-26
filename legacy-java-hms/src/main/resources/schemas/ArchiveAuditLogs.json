@@ -1,8 +1,0 @@
-[
-  {
-    "fieldName": "log",
-    "label": "Audit logs",
-    "isArray": true,
-    "filter": "required|longArray|length[1,100]"
-  }
-]

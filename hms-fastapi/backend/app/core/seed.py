@@ -3,13 +3,13 @@ Database seeding utilities
 """
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, IntegrityError
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
 from app.core.database import get_db
-from app.models import User, Patient
-from app.models.claim import Claim, ClaimStatus
+from app.models import User, Patient, Claim, ClaimStatus, Scheme
 from app.core.security import get_password_hash
 import asyncio
 import time
+import datetime
 
 async def wait_for_database(max_retries: int = 30, retry_interval: int = 2):
     """
@@ -57,17 +57,200 @@ async def wait_for_database(max_retries: int = 30, retry_interval: int = 2):
     
     return False
 
+async def seed_sample_schemes():
+    """
+    Seed sample schemes first, before creating claims
+    """
+    try:
+        db_gen = get_db()
+        db: Session = next(db_gen)
+        
+        # Check if schemes already exist
+        scheme_count = db.query(Scheme).count()
+        if scheme_count > 0:
+            print("✅ Sample schemes already exist")
+            db.close()
+            return
+            
+        print("🌱 Seeding sample schemes...")
+        
+        sample_schemes = [
+            Scheme(
+                name="NHIF",
+                description="National Health Insurance Fund",
+                coverage_limit=500000,  # 5000.00 in cents
+                is_active=True
+            ),
+            Scheme(
+                name="Private Insurance",
+                description="Private Health Insurance",
+                coverage_limit=1000000,  # 10000.00 in cents
+                is_active=True
+            ),
+            Scheme(
+                name="Corporate Insurance",
+                description="Corporate Health Insurance",
+                coverage_limit=750000,  # 7500.00 in cents
+                is_active=True
+            )
+        ]
+        
+        for scheme in sample_schemes:
+            db.add(scheme)
+        
+        db.commit()
+        print("✅ Sample schemes seeded successfully!")
+        db.close()
+        
+    except Exception as e:
+        print(f"❌ Error seeding sample schemes: {str(e)}")
+        if 'db' in locals():
+            db.rollback()
+            db.close()
+
+async def seed_sample_patients():
+    """
+    Seed sample patients for demo/development
+    """
+    try:
+        db_gen = get_db()
+        db: Session = next(db_gen)
+        
+        # Check if patients already exist
+        patient_count = db.query(Patient).count()
+        if patient_count > 0:
+            print("✅ Sample patients already exist")
+            db.close()
+            return
+            
+        print("🌱 Seeding sample patients...")
+        
+        # Get admin user to assign as creator
+        admin_user = db.query(User).filter(User.email == "admin@hospital.com").first()
+        
+        sample_patients = [
+            Patient(
+                first_name="John",
+                last_name="Doe",
+                email="john.doe@example.com",
+                phone="+1234567890",
+                date_of_birth=datetime.date(1990, 5, 15),
+                gender="Male",
+                address="123 Main Street, City",
+                emergency_contact="Jane Doe",
+                emergency_phone="+1234567891",
+                created_by_id=admin_user.id if admin_user else None
+            ),
+            Patient(
+                first_name="Mary",
+                last_name="Smith",
+                email="mary.smith@example.com",
+                phone="+1234567892",
+                date_of_birth=datetime.date(1985, 8, 22),
+                gender="Female",
+                address="456 Oak Avenue, City",
+                emergency_contact="Bob Smith",
+                emergency_phone="+1234567893",
+                created_by_id=admin_user.id if admin_user else None
+            )
+        ]
+        
+        for patient in sample_patients:
+            db.add(patient)
+        
+        db.commit()
+        print("✅ Sample patients seeded successfully!")
+        db.close()
+        
+    except Exception as e:
+        print(f"❌ Error seeding sample patients: {str(e)}")
+        if 'db' in locals():
+            db.rollback()
+            db.close()
+
+async def seed_sample_claims():
+    """
+    Seed sample claims for demo/development, linked to sample patients and schemes.
+    """
+    try:
+        db_gen = get_db()
+        db: Session = next(db_gen)
+        
+        # Find sample patients
+        patients = db.query(Patient).order_by(Patient.id).limit(2).all()
+        if not patients:
+            print("⚠️  No patients found, skipping claim seeding.")
+            db.close()
+            return
+            
+        # Find schemes
+        schemes = db.query(Scheme).all()
+        if not schemes:
+            print("⚠️  No schemes found, skipping claim seeding.")
+            db.close()
+            return
+            
+        # Check if claims already exist
+        claim_count = db.query(Claim).count()
+        if claim_count > 0:
+            print("✅ Sample claims already exist")
+            db.close()
+            return
+            
+        print("🌱 Seeding sample claims...")
+        
+        # Get scheme IDs
+        nhif_scheme = next((s for s in schemes if s.name == "NHIF"), schemes[0])
+        private_scheme = next((s for s in schemes if s.name == "Private Insurance"), schemes[0])
+        
+        sample_claims = [
+            Claim(
+                patient_id=patients[0].id,
+                scheme_id=nhif_scheme.id,  # Use scheme_id now
+                claim_number="CLM001",
+                amount_claimed=120000,  # 1200.00 in cents
+                status=ClaimStatus.pending.value,
+                description="NHIF claim for outpatient visit",
+                date_of_service=datetime.date.today()
+            ),
+            Claim(
+                patient_id=patients[0].id,
+                scheme_id=private_scheme.id,  # Use scheme_id now
+                claim_number="CLM002", 
+                amount_claimed=350000,  # 3500.00 in cents
+                status=ClaimStatus.processing.value,
+                description="Private insurance claim for surgery",
+                date_of_service=datetime.date.today()
+            ),
+            Claim(
+                patient_id=patients[1].id if len(patients) > 1 else patients[0].id,
+                scheme_id=nhif_scheme.id,  # Use scheme_id now
+                claim_number="CLM003",
+                amount_claimed=80000,  # 800.00 in cents
+                status=ClaimStatus.approved.value,
+                description="NHIF claim for lab tests",
+                date_of_service=datetime.date.today()
+            )
+        ]
+        
+        for claim in sample_claims:
+            db.add(claim)
+            
+        db.commit()
+        print("✅ Sample claims seeded successfully!")
+        db.close()
+        
+    except Exception as e:
+        print(f"❌ Error seeding sample claims: {str(e)}")
+        if 'db' in locals():
+            db.rollback()
+            db.close()
+
 async def seed_admin_user():
     """
     Create a default admin user if it doesn't exist
-    This ensures the app is accessible immediately after deployment
     """
     try:
-        # Wait for database to be available
-        if not await wait_for_database():
-            print("❌ Cannot connect to database. Skipping admin user seeding.")
-            return False
-        
         # Get database session
         db_gen = get_db()
         db: Session = next(db_gen)
@@ -104,25 +287,6 @@ async def seed_admin_user():
         # Close database session
         db.close()
         return True
-        
-    except IntegrityError as e:
-        print(f"⚠️  Admin user might already exist: {str(e)}")
-        if 'db' in locals():
-            db.rollback()
-            db.close()
-        return True  # Not a critical error
-        
-    except OperationalError as e:
-        print(f"❌ Database connection error during seeding: {str(e)}")
-        print("💡 Troubleshooting tips:")
-        print("   1. Check if your internet connection is working")
-        print("   2. Verify DATABASE_URL in .env file")
-        print("   3. Ensure Render database is running")
-        print("   4. Try running locally with local database first")
-        if 'db' in locals():
-            db.rollback()
-            db.close()
-        return False
         
     except Exception as e:
         print(f"❌ Error seeding admin user: {str(e)}")
@@ -196,80 +360,35 @@ async def seed_sample_data():
 
 async def initialize_database():
     """
-    Initialize database with essential data
+    Initialize database with tables and essential data
     """
     print("🗄️  Initializing database...")
     
-
-async def seed_sample_claims():
-    """
-    Seed sample claims for demo/development, linked to sample patients.
-    """
-    try:
-        db_gen = get_db()
-        db: Session = next(db_gen)
-        # Find sample patients (by email or just first 2 patients)
-        patients = db.query(Patient).order_by(Patient.id).limit(2).all()
-        if not patients:
-            print("⚠️  No patients found, skipping claim seeding.")
-            db.close()
-            return
-        # Check if claims already exist
-        claim_count = db.query(Claim).count()
-        if claim_count > 0:
-            print("✅ Sample claims already exist")
-            db.close()
-            return
-        print("🌱 Seeding sample claims...")
-        sample_claims = [
-            Claim(
-                patient_id=patients[0].id,
-                scheme="NHIF",
-                amount=1200.0,
-                status=ClaimStatus.pending,
-                description="NHIF claim for outpatient visit"
-            ),
-            Claim(
-                patient_id=patients[0].id,
-                scheme="Private Insurance",
-                amount=3500.0,
-                status=ClaimStatus.processing,
-                description="Private insurance claim for surgery"
-            ),
-            Claim(
-                patient_id=patients[1].id if len(patients) > 1 else patients[0].id,
-                scheme="NHIF",
-                amount=800.0,
-                status=ClaimStatus.approved,
-                description="NHIF claim for lab tests"
-            )
-        ]
-        for claim in sample_claims:
-            db.add(claim)
-        db.commit()
-        print("✅ Sample claims seeded successfully!")
-        db.close()
-    except Exception as e:
-        print(f"❌ Error seeding sample claims: {str(e)}")
-        if 'db' in locals():
-            db.rollback()
-            db.close()
-    # Try to seed admin user
-    admin_success = await seed_admin_user()
+    # First, create all tables
+    # done in the database.py file
     
-    if not admin_success:
-        print("⚠️  Database initialization failed - continuing without seeding")
-        print("💡 You can:")
-        print("   1. Fix the database connection and restart the app")
-        print("   2. Use local database for development")
-        print("   3. Manually create admin user later")
+    # Wait for database to be available
+    if not await wait_for_database():
+        print("❌ Cannot connect to database. Skipping data seeding.")
         return False
     
-    # Only seed sample data in development and if admin seeding succeeded
-    from app.core.config import settings
-    if settings.DEBUG and admin_success:
-        await seed_sample_data()
-        await seed_sample_claims()
+    # Seed admin user
+    admin_success = await seed_admin_user()
+    if not admin_success:
+        print("❌ Admin user seeding failed. Aborting further seeding.")
+        return False
+
+    # Seed sample data (users)
+    await seed_sample_data()
+    
+    # Seed schemes first (required for claims)
+    await seed_sample_schemes()
+    
+    # Seed sample patients (required for claims)
+    await seed_sample_patients()
+
+    # Seed sample claims (depends on schemes and patients)
+    await seed_sample_claims()
 
     print("✅ Database initialization complete!")
     return True

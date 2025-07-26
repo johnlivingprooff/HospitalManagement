@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
-from app.models.claim import Claim, ClaimStatus
+from app.models import Claim, ClaimStatus
 from app.models import Patient
-from app.schemas.claim import ClaimCreate, ClaimUpdate, ClaimOut
+from app.schemas import ClaimCreate, ClaimUpdate, ClaimOut
 from datetime import datetime
 
 router = APIRouter()

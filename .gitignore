@@ -14,5 +14,8 @@ node_modules/
 dist/
 *.bat
 *.exe
+__pycache__/*
 __pycache__/
 .github/
+*.cpython-*
+*.pyo

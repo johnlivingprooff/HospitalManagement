@@ -1,1 +1,0 @@
-update role set roleName = 'Patient' where roleKey = 'Patient';
