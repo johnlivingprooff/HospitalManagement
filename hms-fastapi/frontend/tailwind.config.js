@@ -21,7 +21,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Fira Sans', 'sans-serif'],
+        sans: ['TASA Orbiter', 'sans-serif'],
       },
     },
   },
