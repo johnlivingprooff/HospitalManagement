@@ -18,11 +18,21 @@ The error occurs when the database client doesn't properly configure SSL mode.
 This has been fixed in `app/core/database.py` by automatically adding SSL configuration for PostgreSQL connections:
 
 ```python
-# SSL configuration is now automatically applied
+# SSL configuration is now automatically applied for PostgreSQL
+# Default: sslmode=require
+# Can be customized via POSTGRES_SSL_MODE environment variable
 connect_args = {
-    "sslmode": "require",
+    "sslmode": os.getenv("POSTGRES_SSL_MODE", "require"),
     "connect_timeout": 10
 }
+```
+
+**Custom SSL Mode:**
+You can override the default SSL mode by setting the `POSTGRES_SSL_MODE` environment variable:
+
+```bash
+# In your deployment environment or .env file
+POSTGRES_SSL_MODE=verify-ca
 ```
 
 ### Verification
@@ -38,17 +48,24 @@ Instead of the SSL error.
 
 ### Additional SSL Modes (if needed)
 
-If `sslmode=require` doesn't work with your database provider, you can modify the SSL mode in `app/core/database.py`:
+The default SSL mode is `require`, which works for most cloud databases. You can customize this using the `POSTGRES_SSL_MODE` environment variable:
 
-| SSL Mode | Description | When to Use |
-|----------|-------------|-------------|
-| `require` | Requires SSL, but doesn't verify certificate | Most cloud databases (Render, Railway) |
-| `verify-ca` | Requires SSL and verifies certificate against CA | When you have CA certificate |
-| `verify-full` | Requires SSL and verifies hostname matches certificate | Maximum security, requires full cert chain |
-| `prefer` | Tries SSL first, falls back to non-SSL | Local development |
-| `disable` | No SSL (insecure) | Only for local testing |
+| SSL Mode | Description | When to Use | How to Set |
+|----------|-------------|-------------|------------|
+| `require` | Requires SSL, but doesn't verify certificate | Most cloud databases (Render, Railway) | Default, no action needed |
+| `verify-ca` | Requires SSL and verifies certificate against CA | When you have CA certificate | `POSTGRES_SSL_MODE=verify-ca` |
+| `verify-full` | Requires SSL and verifies hostname matches certificate | Maximum security, requires full cert chain | `POSTGRES_SSL_MODE=verify-full` |
+| `prefer` | Tries SSL first, falls back to non-SSL | Local development | `POSTGRES_SSL_MODE=prefer` |
+| `disable` | No SSL (insecure) | Only for local testing | `POSTGRES_SSL_MODE=disable` |
 
-**Example modification:**
+**Setting via Environment Variable (Recommended):**
+```bash
+# In your .env file or deployment environment
+POSTGRES_SSL_MODE=verify-ca
+```
+
+**Alternative: Modify code directly:**
+If you need more control (e.g., adding certificate paths), you can modify `app/core/database.py`:
 ```python
 connect_args = {
     "sslmode": "verify-ca",  # Change this if needed

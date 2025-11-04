@@ -100,12 +100,15 @@ DATABASE_URL=postgresql://user:password@host:5432/hms
 SECRET_KEY=your-super-secret-key-here
 DEBUG=false
 ALLOWED_ORIGINS=https://your-frontend-url.netlify.app
+# Optional: Customize SSL mode (default: require)
+# POSTGRES_SSL_MODE=require
 ```
 
 **⚠️ Important Notes:**
 - SSL connections are automatically configured for PostgreSQL databases
-- The backend will add `sslmode=require` for all PostgreSQL connections
-- This ensures secure connections to cloud databases (Render, Railway, etc.)
+- Default SSL mode is `require` which works for most cloud databases (Render, Railway, etc.)
+- You can customize SSL mode via `POSTGRES_SSL_MODE` environment variable if needed
+- This ensures secure connections to cloud databases
 
 #### **2. Frontend Deployment (Netlify)**
 ```bash

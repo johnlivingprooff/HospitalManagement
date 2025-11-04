@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -5,11 +6,13 @@ from app.core.config import settings
 
 # Create SQLAlchemy engine with SSL support for PostgreSQL
 connect_args = {}
-if settings.DATABASE_URL.startswith("postgresql"):
+if settings.DATABASE_URL.startswith(("postgresql://", "postgresql+psycopg2://")):
     # Add SSL configuration for PostgreSQL connections
     # This is required for cloud databases like Render, Railway, etc.
+    # SSL mode can be customized via POSTGRES_SSL_MODE environment variable
+    ssl_mode = os.getenv("POSTGRES_SSL_MODE", "require")
     connect_args = {
-        "sslmode": "require",
+        "sslmode": ssl_mode,
         "connect_timeout": 10
     }
 
