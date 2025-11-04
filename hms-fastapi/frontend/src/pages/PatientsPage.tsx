@@ -390,66 +390,71 @@ const PatientsPage = () => {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         title="Add New Patient"
+        size="max-w-3xl"
       >
-        <form onSubmit={handleAddPatient} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleAddPatient} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                First Name
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                First Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.first_name}
                 onChange={(e) => setPatientForm({...patientForm, first_name: e.target.value})}
+                placeholder="Enter first name"
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Last Name
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Last Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.last_name}
                 onChange={(e) => setPatientForm({...patientForm, last_name: e.target.value})}
+                placeholder="Enter last name"
               />
             </div>
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Email
             </label>
             <input
               type="email"
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={patientForm.email}
               onChange={(e) => setPatientForm({...patientForm, email: e.target.value})}
+              placeholder="patient@example.com"
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Phone
               </label>
               <input
                 type="tel"
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.phone}
                 onChange={(e) => setPatientForm({...patientForm, phone: e.target.value})}
+                placeholder="+1 (555) 123-4567"
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Date of Birth
               </label>
               <input
                 type="date"
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.date_of_birth}
                 onChange={(e) => setPatientForm({...patientForm, date_of_birth: e.target.value})}
               />
@@ -457,11 +462,11 @@ const PatientsPage = () => {
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Gender
             </label>
             <select
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={patientForm.gender}
               onChange={(e) => setPatientForm({...patientForm, gender: e.target.value})}
             >
@@ -473,28 +478,29 @@ const PatientsPage = () => {
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Address
             </label>
             <textarea
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
               rows={3}
               value={patientForm.address}
               onChange={(e) => setPatientForm({...patientForm, address: e.target.value})}
+              placeholder="Enter patient's address"
             />
           </div>
           
-          <div className="flex justify-end pt-6 space-x-3 border-t border-gray-200">
+          <div className="flex justify-end gap-4 pt-6 border-t-2 border-primary-100">
             <button
               type="button"
               onClick={() => setShowAddModal(false)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-green-600 border border-transparent rounded-lg shadow-sm hover:bg-green-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 text-sm font-semibold text-white transition-all duration-200 rounded-lg shadow-md bg-primary-500 hover:bg-primary-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={addPatientMutation.isLoading}
             >
               {addPatientMutation.isLoading ? 'Adding...' : 'Add Patient'}
@@ -520,69 +526,78 @@ const PatientsPage = () => {
           })
         }}
         title={`Edit Patient - ${editingPatient?.first_name} ${editingPatient?.last_name}`}
+        size="max-w-3xl"
       >
-        <form onSubmit={handleEditSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <form onSubmit={handleEditSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">First Name *</label>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                First Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 required
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.first_name}
                 onChange={(e) => setPatientForm({...patientForm, first_name: e.target.value})}
+                placeholder="Enter first name"
               />
             </div>
             
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Last Name *</label>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Last Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 required
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.last_name}
                 onChange={(e) => setPatientForm({...patientForm, last_name: e.target.value})}
+                placeholder="Enter last name"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">Email</label>
               <input
                 type="email"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.email}
                 onChange={(e) => setPatientForm({...patientForm, email: e.target.value})}
+                placeholder="patient@example.com"
               />
             </div>
             
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Phone</label>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">Phone</label>
               <input
                 type="tel"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.phone}
                 onChange={(e) => setPatientForm({...patientForm, phone: e.target.value})}
+                placeholder="+1 (555) 123-4567"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Date of Birth</label>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">Date of Birth</label>
               <input
                 type="date"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.date_of_birth}
                 onChange={(e) => setPatientForm({...patientForm, date_of_birth: e.target.value})}
               />
             </div>
             
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Gender</label>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">Gender</label>
               <select
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={patientForm.gender}
                 onChange={(e) => setPatientForm({...patientForm, gender: e.target.value})}
               >
@@ -595,9 +610,9 @@ const PatientsPage = () => {
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Address</label>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">Address</label>
             <textarea
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
               placeholder="Enter patient's address"
               rows={3}
               value={patientForm.address}
@@ -605,21 +620,21 @@ const PatientsPage = () => {
             />
           </div>
           
-          <div className="flex justify-end pt-6 space-x-3 border-t border-gray-200">
+          <div className="flex justify-end gap-4 pt-6 border-t-2 border-primary-100">
             <button
               type="button"
               onClick={() => {
                 setShowEditModal(false)
                 setEditingPatient(null)
               }}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
               disabled={editPatientMutation.isLoading}
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 text-sm font-semibold text-white transition-all duration-200 rounded-lg shadow-md bg-primary-500 hover:bg-primary-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={editPatientMutation.isLoading}
             >
               {editPatientMutation.isLoading ? 'Updating...' : 'Update Patient'}

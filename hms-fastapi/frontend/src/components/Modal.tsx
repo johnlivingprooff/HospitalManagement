@@ -9,30 +9,34 @@ interface ModalProps {
   size?: string
 }
 
-const Modal = ({ isOpen, onClose, title, children, size = 'max-w-md' }: ModalProps) => {
+const Modal = ({ isOpen, onClose, title, children, size = 'max-w-2xl' }: ModalProps) => {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50"
+        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className={`relative z-10 w-full ${size} p-6 mx-4 bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto`}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      <div className={`relative z-10 w-full ${size} bg-gradient-to-br from-white to-primary-50/30 rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden border-2 border-primary-200`}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-6 border-b-2 border-primary-200 bg-gradient-to-r from-primary-50 to-white">
+          <h3 className="text-xl font-bold text-gray-900">{title}</h3>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600"
+            className="p-2 text-gray-400 transition-all duration-200 rounded-lg hover:text-gray-600 hover:bg-white/50"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
         
-        {children}
+        {/* Content */}
+        <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {children}
+        </div>
       </div>
     </div>
   )
