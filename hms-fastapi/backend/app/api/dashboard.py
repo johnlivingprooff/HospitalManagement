@@ -98,7 +98,11 @@ def get_dashboard_data(
     monthly_revenue = []
     for i in range(6):
         month_start = (today.replace(day=1) - timedelta(days=i*30)).replace(day=1)
-        month_end = (month_start.replace(month=month_start.month % 12 + 1, day=1) - timedelta(days=1))
+        # Calculate next month correctly, handling December
+        if month_start.month == 12:
+            month_end = (month_start.replace(year=month_start.year + 1, month=1, day=1) - timedelta(days=1))
+        else:
+            month_end = (month_start.replace(month=month_start.month + 1, day=1) - timedelta(days=1))
         
         month_revenue = db.query(func.sum(Bill.paid_amount)).filter(
             Bill.created_at >= month_start,
@@ -107,7 +111,7 @@ def get_dashboard_data(
         
         monthly_revenue.append({
             "month": month_start.strftime("%b %Y"),
-            "revenue": month_revenue / 100  # Convert cents to dollars
+            "revenue": (month_revenue / 100) if month_revenue is not None else 0  # Convert cents to dollars, handle None
         })
     
     monthly_revenue.reverse()  # Show oldest to newest

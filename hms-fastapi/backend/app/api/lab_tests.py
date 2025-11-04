@@ -68,6 +68,7 @@ def get_lab_test(
     return lab_test
 
 @router.post("/", response_model=LabTestResponse)
+@router.post("", response_model=LabTestResponse)
 def create_lab_test(
     lab_test: LabTestCreate,
     db: Session = Depends(get_db),

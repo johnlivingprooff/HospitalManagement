@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.models import Ward, WardPatient, Patient, User
 from app.schemas import (
     WardCreate, WardUpdate, WardResponse, 
-    WardPatientCreate, WardPatientUpdate, WardPatientResponse
+    WardPatientCreate, WardPatientUpdate, WardPatientResponse, DischargePatient
 )
 from app.api.auth import get_current_user_dependency
 
@@ -410,7 +410,7 @@ async def update_ward_patient(
 @router.put("/patients/{ward_patient_id}/discharge", response_model=WardPatientResponse)
 async def discharge_patient(
     ward_patient_id: int,
-    discharge_data: dict,
+    discharge_data: DischargePatient,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_dependency)
 ):
@@ -439,10 +439,10 @@ async def discharge_patient(
     
     # Update discharge information
     from datetime import datetime
-    ward_patient.discharge_date = datetime.fromisoformat(discharge_data.get("discharge_date", datetime.now().isoformat()))
+    ward_patient.discharge_date = discharge_data.discharge_date or datetime.now()
     ward_patient.status = "discharged"
-    if discharge_data.get("notes"):
-        ward_patient.notes = discharge_data.get("notes")
+    if discharge_data.notes:
+        ward_patient.notes = discharge_data.notes
     
     # Update ward occupancy
     ward = db.query(Ward).filter(Ward.id == ward_patient.ward_id).first()

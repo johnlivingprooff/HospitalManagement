@@ -14,9 +14,15 @@ node_modules/
 dist/
 *.bat
 *.exe
-__pycache__/*
+
+# Python cache files
 __pycache__/
-.github/
+*.py[cod]
+*$py.class
+*.so
+.Python
 *.cpython-*
 *.pyo
+
+.github/
 *.ps1
