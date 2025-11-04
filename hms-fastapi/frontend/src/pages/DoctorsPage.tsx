@@ -617,15 +617,16 @@ const DoctorsPage = () => {
         isOpen={showAddAppointmentModal}
         onClose={() => setShowAddAppointmentModal(false)}
         title="Schedule New Appointment"
+        size="max-w-3xl"
       >
-        <form onSubmit={handleAddAppointment} className="space-y-4">
+        <form onSubmit={handleAddAppointment} className="space-y-6">
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Patient
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Patient <span className="text-red-500">*</span>
             </label>
             <select
               required
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={appointmentForm.patient_id}
               onChange={(e) => setAppointmentForm({...appointmentForm, patient_id: e.target.value})}
             >
@@ -638,27 +639,27 @@ const DoctorsPage = () => {
             </select>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Date
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 required
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={appointmentForm.appointment_date}
                 onChange={(e) => setAppointmentForm({...appointmentForm, appointment_date: e.target.value})}
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Time
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Time <span className="text-red-500">*</span>
               </label>
               <input
                 type="time"
                 required
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={appointmentForm.appointment_time}
                 onChange={(e) => setAppointmentForm({...appointmentForm, appointment_time: e.target.value})}
               />
@@ -666,12 +667,12 @@ const DoctorsPage = () => {
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Appointment Type
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Appointment Type <span className="text-red-500">*</span>
             </label>
             <select
               required
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={appointmentForm.appointment_type}
               onChange={(e) => setAppointmentForm({...appointmentForm, appointment_type: e.target.value})}
             >
@@ -686,11 +687,11 @@ const DoctorsPage = () => {
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Symptoms
             </label>
             <textarea
-              className="resize-none input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
               rows={3}
               value={appointmentForm.symptoms}
               onChange={(e) => setAppointmentForm({...appointmentForm, symptoms: e.target.value})}
@@ -699,11 +700,11 @@ const DoctorsPage = () => {
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Notes
             </label>
             <textarea
-              className="resize-none input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
               rows={2}
               value={appointmentForm.notes}
               onChange={(e) => setAppointmentForm({...appointmentForm, notes: e.target.value})}
@@ -711,17 +712,17 @@ const DoctorsPage = () => {
             />
           </div>
           
-          <div className="flex justify-end pt-6 space-x-3 border-t border-gray-200">
+          <div className="flex justify-end gap-4 pt-6 border-t-2 border-primary-100">
             <button
               type="button"
               onClick={() => setShowAddAppointmentModal(false)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 border border-transparent rounded-lg shadow-sm bg-emerald-600 hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 text-sm font-semibold text-white transition-all duration-200 rounded-lg shadow-md bg-primary-500 hover:bg-primary-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={addAppointmentMutation.isLoading}
             >
               {addAppointmentMutation.isLoading && (
@@ -741,67 +742,72 @@ const DoctorsPage = () => {
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
         title="Edit Doctor"
+        size="max-w-3xl"
       >
-        <form onSubmit={handleEditDoctor} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleEditDoctor} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                First Name
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                First Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={editDoctorForm.first_name}
                 onChange={(e) => setEditDoctorForm({...editDoctorForm, first_name: e.target.value})}
+                placeholder="Enter first name"
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Last Name
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Last Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={editDoctorForm.last_name}
                 onChange={(e) => setEditDoctorForm({...editDoctorForm, last_name: e.target.value})}
+                placeholder="Enter last name"
               />
             </div>
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Email
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Email <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
               required
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={editDoctorForm.email}
               onChange={(e) => setEditDoctorForm({...editDoctorForm, email: e.target.value})}
+              placeholder="doctor@hospital.com"
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 Phone
               </label>
               <input
                 type="tel"
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={editDoctorForm.phone}
                 onChange={(e) => setEditDoctorForm({...editDoctorForm, phone: e.target.value})}
+                placeholder="+1 (555) 123-4567"
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 License Number
               </label>
               <input
                 type="text"
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={editDoctorForm.license_number}
                 onChange={(e) => setEditDoctorForm({...editDoctorForm, license_number: e.target.value})}
                 placeholder="Medical license number"
@@ -810,11 +816,11 @@ const DoctorsPage = () => {
           </div>
           
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Specialization
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Specialization <span className="text-red-500">*</span>
             </label>
             <select
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={editDoctorForm.specialization}
               onChange={(e) => setEditDoctorForm({...editDoctorForm, specialization: e.target.value})}
               required
@@ -833,17 +839,17 @@ const DoctorsPage = () => {
             </select>
           </div>
           
-          <div className="flex justify-end pt-6 space-x-3 border-t border-gray-200">
+          <div className="flex justify-end gap-4 pt-6 border-t-2 border-primary-100">
             <button
               type="button"
               onClick={() => setShowEditModal(false)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 border border-transparent rounded-lg shadow-sm bg-emerald-600 hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 text-sm font-semibold text-white transition-all duration-200 rounded-lg shadow-md bg-primary-500 hover:bg-primary-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={editDoctorMutation.isLoading}
             >
               {editDoctorMutation.isLoading && (
@@ -955,8 +961,8 @@ const DoctorsPage = () => {
             </select>
           </div>
           
-          <div className="p-3 rounded-md bg-blue-50">
-            <p className="text-sm text-blue-800">
+          <div className="p-4 border-2 rounded-lg bg-primary-50 border-primary-200">
+            <p className="text-sm text-gray-700">
               <strong>Note:</strong> A temporary password "temp123" will be assigned. 
               The doctor should change it upon first login.
             </p>

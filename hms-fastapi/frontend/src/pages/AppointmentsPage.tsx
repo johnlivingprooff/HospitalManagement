@@ -416,14 +416,15 @@ const AppointmentsPage = () => {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         title="Schedule New Appointment"
+        size="max-w-3xl"
       >
-        <form onSubmit={handleAddAppointment} className="space-y-4">
+        <form onSubmit={handleAddAppointment} className="space-y-6">
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Patient
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Patient <span className="text-red-500">*</span>
             </label>
             <select 
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={appointmentForm.patient_id}
               onChange={(e) => setAppointmentForm({...appointmentForm, patient_id: e.target.value})}
               required
@@ -437,11 +438,11 @@ const AppointmentsPage = () => {
             </select>
           </div>
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Doctor
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Doctor <span className="text-red-500">*</span>
             </label>
             <select 
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={appointmentForm.doctor_id}
               onChange={(e) => setAppointmentForm({...appointmentForm, doctor_id: e.target.value})}
               required
@@ -454,26 +455,26 @@ const AppointmentsPage = () => {
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Date
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Date <span className="text-red-500">*</span>
               </label>
               <input 
                 type="date" 
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={appointmentForm.appointment_date}
                 onChange={(e) => setAppointmentForm({...appointmentForm, appointment_date: e.target.value})}
                 required
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Time
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Time <span className="text-red-500">*</span>
               </label>
               <input 
                 type="time" 
-                className="input"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 value={appointmentForm.appointment_time}
                 onChange={(e) => setAppointmentForm({...appointmentForm, appointment_time: e.target.value})}
                 required
@@ -481,11 +482,11 @@ const AppointmentsPage = () => {
             </div>
           </div>
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Appointment Type
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Appointment Type <span className="text-red-500">*</span>
             </label>
             <select 
-              className="input"
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               value={appointmentForm.appointment_type}
               onChange={(e) => setAppointmentForm({...appointmentForm, appointment_type: e.target.value})}
               required
@@ -498,27 +499,28 @@ const AppointmentsPage = () => {
             </select>
           </div>
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Notes
             </label>
             <textarea 
-              className="h-24 input" 
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none" 
               placeholder="Additional notes..."
               value={appointmentForm.notes}
               onChange={(e) => setAppointmentForm({...appointmentForm, notes: e.target.value})}
+              rows={4}
             ></textarea>
           </div>
-          <div className="flex justify-end pt-6 space-x-3 border-t border-gray-200">
+          <div className="flex justify-end gap-4 pt-6 border-t-2 border-primary-100">
             <button
               type="button"
               onClick={() => setShowAddModal(false)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 bg-purple-600 border border-transparent rounded-lg shadow-sm hover:bg-purple-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 text-sm font-semibold text-white transition-all duration-200 rounded-lg shadow-md bg-primary-500 hover:bg-primary-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={addAppointmentMutation.isLoading}
             >
               {addAppointmentMutation.isLoading ? 'Scheduling...' : 'Schedule Appointment'}
@@ -532,144 +534,147 @@ const AppointmentsPage = () => {
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
         title="Edit Appointment"
+        size="max-w-4xl"
       >
-        <div className="max-h-[80vh] overflow-y-auto px-1">
-          <form onSubmit={handleEditSubmit} className="space-y-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  Date & Time
-                </label>
-                <input
-                  type="datetime-local"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                  value={editForm.appointment_date}
-                  onChange={(e) => setEditForm({...editForm, appointment_date: e.target.value})}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  Duration (minutes)
-                </label>
-                <input
-                  type="number"
-                  min="15"
-                  step="15"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                  value={editForm.duration_minutes}
-                  onChange={(e) => setEditForm({...editForm, duration_minutes: Number(e.target.value)})}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  Appointment Type
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                  value={editForm.appointment_type}
-                  onChange={(e) => setEditForm({...editForm, appointment_type: e.target.value})}
-                  required
-                >
-                  <option value="">Select Type</option>
-                  <option value="consultation">Consultation</option>
-                  <option value="follow_up">Follow-up</option>
-                  <option value="emergency">Emergency</option>
-                  <option value="routine_checkup">Routine Check-up</option>
-                  <option value="surgery">Surgery</option>
-                  <option value="therapy">Therapy</option>
-                </select>
-              </div>
-              <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  Status
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                  value={editForm.status}
-                  onChange={(e) => setEditForm({...editForm, status: e.target.value})}
-                  required
-                >
-                  <option value="scheduled">Scheduled</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="no_show">No Show</option>
-                </select>
-              </div>
-            </div>
-
+        <form onSubmit={handleEditSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Symptoms
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Date & Time <span className="text-red-500">*</span>
               </label>
-              <textarea
-                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 resize-y"
-                placeholder="Patient symptoms..."
-                value={editForm.symptoms}
-                onChange={(e) => setEditForm({...editForm, symptoms: e.target.value})}
+              <input
+                type="datetime-local"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                value={editForm.appointment_date}
+                onChange={(e) => setEditForm({...editForm, appointment_date: e.target.value})}
+                required
               />
             </div>
-
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Notes
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Duration (minutes) <span className="text-red-500">*</span>
               </label>
-              <textarea
-                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 resize-y"
-                placeholder="Additional notes..."
-                value={editForm.notes}
-                onChange={(e) => setEditForm({...editForm, notes: e.target.value})}
+              <input
+                type="number"
+                min="15"
+                step="15"
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                value={editForm.duration_minutes}
+                onChange={(e) => setEditForm({...editForm, duration_minutes: Number(e.target.value)})}
+                required
               />
             </div>
-
+          </div>
+          
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Diagnosis
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Appointment Type <span className="text-red-500">*</span>
               </label>
-              <textarea
-                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 resize-y"
-                placeholder="Medical diagnosis..."
-                value={editForm.diagnosis}
-                onChange={(e) => setEditForm({...editForm, diagnosis: e.target.value})}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Treatment Plan
-              </label>
-              <textarea
-                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 resize-y"
-                placeholder="Treatment plan and recommendations..."
-                value={editForm.treatment_plan}
-                onChange={(e) => setEditForm({...editForm, treatment_plan: e.target.value})}
-              />
-            </div>
-
-            <div className="flex justify-end pt-6 space-x-4 border-t border-gray-200 sticky bottom-0 bg-white">
-              <button
-                type="button"
-                onClick={() => setShowEditModal(false)}
-                className="inline-flex items-center px-6 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              <select
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                value={editForm.appointment_type}
+                onChange={(e) => setEditForm({...editForm, appointment_type: e.target.value})}
+                required
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="inline-flex items-center px-6 py-2 text-sm font-medium text-white transition-all duration-200 bg-purple-600 border border-transparent rounded-lg shadow-sm hover:bg-purple-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={updateAppointmentMutation.isLoading}
-              >
-                {updateAppointmentMutation.isLoading ? 'Updating...' : 'Update Appointment'}
-              </button>
+                <option value="">Select Type</option>
+                <option value="consultation">Consultation</option>
+                <option value="follow_up">Follow-up</option>
+                <option value="emergency">Emergency</option>
+                <option value="routine_checkup">Routine Check-up</option>
+                <option value="surgery">Surgery</option>
+                <option value="therapy">Therapy</option>
+              </select>
             </div>
-          </form>
-        </div>
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Status <span className="text-red-500">*</span>
+              </label>
+              <select
+                className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                value={editForm.status}
+                onChange={(e) => setEditForm({...editForm, status: e.target.value})}
+                required
+              >
+                <option value="scheduled">Scheduled</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="no_show">No Show</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Symptoms
+            </label>
+            <textarea
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
+              placeholder="Patient symptoms..."
+              value={editForm.symptoms}
+              onChange={(e) => setEditForm({...editForm, symptoms: e.target.value})}
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Notes
+            </label>
+            <textarea
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
+              placeholder="Additional notes..."
+              value={editForm.notes}
+              onChange={(e) => setEditForm({...editForm, notes: e.target.value})}
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Diagnosis
+            </label>
+            <textarea
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
+              placeholder="Medical diagnosis..."
+              value={editForm.diagnosis}
+              onChange={(e) => setEditForm({...editForm, diagnosis: e.target.value})}
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Treatment Plan
+            </label>
+            <textarea
+              className="w-full px-4 py-3 text-sm transition-all duration-200 border-2 border-gray-300 rounded-lg outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 resize-none"
+              placeholder="Treatment plan and recommendations..."
+              value={editForm.treatment_plan}
+              onChange={(e) => setEditForm({...editForm, treatment_plan: e.target.value})}
+              rows={3}
+            />
+          </div>
+
+          <div className="flex justify-end gap-4 pt-6 border-t-2 border-primary-100">
+            <button
+              type="button"
+              onClick={() => setShowEditModal(false)}
+              className="px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-3 text-sm font-semibold text-white transition-all duration-200 rounded-lg shadow-md bg-primary-500 hover:bg-primary-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={updateAppointmentMutation.isLoading}
+            >
+              {updateAppointmentMutation.isLoading ? 'Updating...' : 'Update Appointment'}
+            </button>
+          </div>
+        </form>
       </Modal>
     </div>
   )
