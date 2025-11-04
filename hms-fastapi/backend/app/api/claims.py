@@ -31,7 +31,6 @@ def list_claims(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(Claim).offset(skip).limit(limit).all()
 
 @router.get("/{claim_id}", response_model=ClaimOut)
-@router.get("/{claim_id}", response_model=ClaimOut)
 def get_claim(
     claim_id: int,
     db: Session = Depends(get_db)
@@ -41,7 +40,6 @@ def get_claim(
         raise HTTPException(status_code=404, detail="Claim not found")
     return claim
 
-@router.patch("/{claim_id}", response_model=ClaimOut)
 @router.patch("/{claim_id}", response_model=ClaimOut)
 def update_claim(
     claim_id: int,
@@ -60,7 +58,6 @@ def update_claim(
     db.refresh(claim)
     return claim
 
-@router.delete("/{claim_id}", status_code=status.HTTP_204_NO_CONTENT)
 @router.delete("/{claim_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_claim(
     claim_id: int,

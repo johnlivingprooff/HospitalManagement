@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime, date
 from app.core.database import get_db
 from app.models import Bill, Patient, User
-from app.schemas import BillResponse, BillCreate, BillUpdate
+from app.schemas import BillResponse, BillCreate, BillUpdate, BillPayment
 from app.api.auth import get_current_user_dependency
 
 router = APIRouter()
@@ -110,7 +110,7 @@ async def update_bill(
 @router.post("/{bill_id}/payment")
 async def record_payment(
     bill_id: int,
-    payment_amount: int,
+    payment_data: BillPayment,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_dependency)
 ):
@@ -120,7 +120,7 @@ async def record_payment(
         raise HTTPException(status_code=404, detail="Bill not found")
     
     # Update paid amount
-    bill.paid_amount += payment_amount
+    bill.paid_amount += payment_data.payment_amount
     
     # Update status based on payment
     if bill.paid_amount >= bill.total_amount:

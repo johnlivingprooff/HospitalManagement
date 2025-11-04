@@ -287,6 +287,10 @@ class BillResponse(BillBase):
     created_at: datetime
     updated_at: datetime
 
+class BillPayment(BaseSchema):
+    """Schema for recording a payment on a bill"""
+    payment_amount: int = Field(..., gt=0, description="Payment amount in cents")
+
 # Authentication schemas
 class Token(BaseSchema):
     access_token: str
@@ -413,6 +417,11 @@ class WardPatientUpdate(BaseSchema):
     status: Optional[str] = Field(None, pattern="^(admitted|stable|critical|recovering|discharged)$")
     notes: Optional[str] = None
     discharge_date: Optional[datetime] = None
+
+class DischargePatient(BaseSchema):
+    """Schema for discharging a patient from a ward"""
+    discharge_date: Optional[datetime] = Field(None, description="Discharge date, defaults to now if not provided")
+    notes: Optional[str] = Field(None, description="Discharge notes")
 
 class WardPatientResponse(WardPatientBase):
     id: int
