@@ -40,7 +40,7 @@ class SchemeOut(SchemeBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- Claim Schemas ---
 class ClaimBase(BaseSchema):
@@ -67,7 +67,7 @@ class ClaimOut(ClaimBase):
     outcome: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # User schemas
 class UserBase(BaseSchema):
