@@ -102,6 +102,11 @@ DEBUG=false
 ALLOWED_ORIGINS=https://your-frontend-url.netlify.app
 ```
 
+**⚠️ Important Notes:**
+- SSL connections are automatically configured for PostgreSQL databases
+- The backend will add `sslmode=require` for all PostgreSQL connections
+- This ensures secure connections to cloud databases (Render, Railway, etc.)
+
 #### **2. Frontend Deployment (Netlify)**
 ```bash
 # Repository Setup
