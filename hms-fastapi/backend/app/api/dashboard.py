@@ -111,7 +111,7 @@ def get_dashboard_data(
         
         monthly_revenue.append({
             "month": month_start.strftime("%b %Y"),
-            "revenue": month_revenue / 100 if month_revenue else 0  # Convert cents to dollars, handle None
+            "revenue": (month_revenue / 100) if month_revenue is not None else 0  # Convert cents to dollars, handle None
         })
     
     monthly_revenue.reverse()  # Show oldest to newest
